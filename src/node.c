@@ -1,10 +1,10 @@
 #include <Utopia.h>
+#include <stdlib.h>
+#include <string.h>
 
-/*
----------------------------------
+/********************************
  -> Doubly Linked Generic Node <- 
----------------------------------
-*/
+********************************/
 
 node_t* node_new(void* data)
 {

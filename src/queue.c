@@ -1,4 +1,10 @@
 #include <Utopia.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*************************
+ -> Generic Queue Array <- 
+*************************/
 
 queue_t queue(unsigned int size, unsigned int bytes)
 {

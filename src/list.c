@@ -1,10 +1,10 @@
 #include <Utopia.h>
+#include <stdlib.h>
+#include <string.h>
 
-/*
----------------------------------
- -> Doubly Linked Generic List <- 
----------------------------------
-*/
+/********************************
+ -> Generic Doubly Linked List <- 
+********************************/
 
 list_t list(unsigned int bytes)
 {

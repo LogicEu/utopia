@@ -1,10 +1,10 @@
 #include <Utopia.h>
+#include <stdlib.h>
+#include <string.h>
 
-/*
-----------------------------
+/***************************
  -> Dynamic Generic Array <- 
-----------------------------
-*/
+***************************/
 
 array_t array(unsigned int size, unsigned int bytes)
 {

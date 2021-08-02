@@ -1,4 +1,10 @@
 #include <Utopia.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*************************
+ -> Generic Stack Array <- 
+*************************/
 
 ustack_t stack(unsigned int size, unsigned int bytes)
 {

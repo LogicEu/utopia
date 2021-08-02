@@ -5,28 +5,19 @@
 extern "C" {
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-
-/*
-
-=========================================================
+/*=======================================================
 
 >>>>>>>>>>>>>>  UTOPIA UTILITY LIBRARY   >>>>>>>>>>>>>>>>
 
 ANSI C99 header only utility library implementing simple
 generic containers and data structures 
 
-===============================================  @eulogic
-
-*/
+============================================= @eulogic */
 
 typedef struct array_t {
     void* data;
     unsigned int bytes, size, used;
 } array_t;
-
-typedef array_t ustack_t;
 
 typedef struct queue_t {
     void* data;
@@ -43,11 +34,12 @@ typedef struct list_t {
     unsigned int bytes, size;
 } list_t;
 
-/*
-----------------------------
+typedef array_t ustack_t;
+
+
+/***************************
  -> Dynamic Generic Array <- 
-----------------------------
-*/
+***************************/
 
 array_t array(unsigned int size, unsigned int bytes);
 array_t* array_new(unsigned int size, unsigned int bytes);
@@ -63,11 +55,9 @@ void* array_pop(array_t* array);
 void array_free(array_t* array);
 void array_destroy(array_t* array);
 
-/*
----------------------------------
+/********************************
  -> Doubly Linked Generic Node <- 
----------------------------------
-*/
+********************************/
 
 node_t* node_new(void* data);
 void node_push(node_t* head, void* data);
@@ -79,11 +69,9 @@ int node_find_index(node_t* first, void* data, unsigned int bytes);
 node_t* node_index_forward(node_t* head, unsigned int index);
 node_t* node_index_backward(node_t* tail, unsigned int index, unsigned int size);
 
-/*
----------------------------------
+/********************************
  -> Generic Doubly Linked List <- 
----------------------------------
-*/
+********************************/
 
 list_t list(unsigned int bytes);
 list_t* list_new(unsigned int bytes);
@@ -101,11 +89,9 @@ void list_remove_index(list_t* list, unsigned int index);
 void list_free(list_t* list);
 void list_destroy(list_t* list);
 
-/*
---------------------------
+/*************************
  -> Generic Stack Array <- 
---------------------------
-*/
+*************************/
 
 ustack_t stack(unsigned int size, unsigned int bytes);
 ustack_t* stack_new(unsigned int size, unsigned int bytes);
@@ -120,11 +106,9 @@ void* stack_peek(ustack_t* stack);
 void stack_free(ustack_t* stack);
 void stack_destroy(ustack_t* stack);
 
-/*
---------------------------
+/*************************
  -> Generic Queue Array <- 
---------------------------
-*/
+*************************/
 
 queue_t queue(unsigned int size, unsigned int bytes);
 queue_t* queue_new(unsigned int size, unsigned int bytes);
