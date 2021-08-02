@@ -48,12 +48,9 @@ slib() {
     rm *.o
 }
 
-if [[ $# < 1 ]]
-then 
+if [[ $# < 1 ]]; then 
     fail_op
-fi
-
-if [[ "$1" == "-d" ]]; then
+elif [[ "$1" == "-d" ]]; then
     dlib
 elif [[ "$1" == "-s" ]]; then
     slib
