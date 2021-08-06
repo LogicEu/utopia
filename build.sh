@@ -48,12 +48,18 @@ slib() {
     rm *.o
 }
 
+clean() {
+    rm $name.a
+}
+
 if [[ $# < 1 ]]; then 
     fail_op
-elif [[ "$1" == "-d" ]]; then
+elif [[ "$1" == "-dlib" ]]; then
     dlib
-elif [[ "$1" == "-s" ]]; then
+elif [[ "$1" == "-slib" ]]; then
     slib
+elif [[ "$1" == "-clean" ]]; then
+    clean
 else
     fail_op
 fi 
