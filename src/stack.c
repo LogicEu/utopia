@@ -75,7 +75,7 @@ void* stack_peek(ustack_t* stack)
 
 void stack_free(ustack_t* stack)
 {
-    if (stack->data == NULL) return;
+    if (!stack || !stack->data) return;
     free(stack->data);
     stack->data = NULL;
     stack->used = 0;

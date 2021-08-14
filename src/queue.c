@@ -82,7 +82,7 @@ void* queue_peek(queue_t* queue)
 
 void queue_free(queue_t* queue)
 {
-    if (queue->data == NULL) return;
+    if (!queue || !queue->data) return;
     free(queue->data);
     queue->data = NULL;
     queue->used = 0;

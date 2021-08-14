@@ -91,7 +91,7 @@ void* array_pop(array_t* array)
 
 void array_free(array_t* array)
 {
-    if (array->data == NULL) return;
+    if (!array || !array->data) return;
     free(array->data);
     array->data = NULL;
     array->used = 0;
