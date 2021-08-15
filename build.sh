@@ -14,7 +14,7 @@ inc=(
 )
 
 fail_op() {
-    echo "Run with -d to build dynamically, or -s to build statically."
+    echo "Run with -dlib to build dynamically, or -slib to build statically."
     exit
 }
 

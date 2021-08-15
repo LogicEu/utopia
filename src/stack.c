@@ -26,17 +26,17 @@ ustack_t* stack_new(unsigned int size, unsigned int bytes)
     return stack;
 }
 
-unsigned int stack_is_empty(ustack_t* stack)
+unsigned int stack_is_empty(const ustack_t* restrict stack)
 {
     return stack->used == 0;
 }
 
-unsigned int stack_is_full(ustack_t* stack)
+unsigned int stack_is_full(const ustack_t* restrict stack)
 {
     return stack->used == stack->size;
 }
 
-void* stack_index(ustack_t* stack, unsigned int index)
+void* stack_index(const ustack_t* restrict stack, unsigned int index)
 {
     return (void*)((char*)stack->data + index * stack->bytes);
 }
@@ -57,19 +57,19 @@ void stack_cut(ustack_t* stack)
 void stack_push(ustack_t* stack, void* data)
 {
     if (stack->data == NULL) stack->data = malloc(stack->size * stack->used);
-    if (stack_is_full(stack)) stack_resize(stack, stack->size * 2);
+    if (stack->used == stack->size) stack_resize(stack, stack->size * 2);
     memcpy(stack_index(stack, stack->used++), data, stack->bytes);
 }
 
 void* stack_pop(ustack_t* stack)
 {
-    if (stack_is_empty(stack)) return NULL;
+    if (stack->used == 0) return NULL;
     return stack_index(stack, --stack->used);
 }
 
-void* stack_peek(ustack_t* stack)
+void* stack_peek(const ustack_t* restrict stack)
 {
-    if (stack_is_empty(stack)) return NULL;
+    if (stack->used == 0) return NULL;
     return stack_index(stack, stack->used);
 }
 

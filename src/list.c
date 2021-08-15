@@ -26,17 +26,17 @@ list_t* list_new(unsigned int bytes)
     return list;
 }
 
-unsigned int list_is_empty(list_t* list)
+unsigned int list_is_empty(const list_t* restrict list)
 {
     return list->head == NULL;
 }
 
-void* list_index(list_t* list, unsigned int index)
+void* list_index(const list_t* restrict list, unsigned int index)
 {
     return list_index_node(list, index)->data;
 }
 
-node_t* list_index_node(list_t* list, unsigned int index)
+node_t* list_index_node(const list_t* restrict list, unsigned int index)
 {
     if (index <= list->size / 2) return node_index_forward(list->head, index);
     return node_index_backward(list->tail, index, list->size);
@@ -61,12 +61,12 @@ void* list_pop(list_t* list)
     return list_pop_node(list, list->tail);
 }
 
-node_t* list_find_node(list_t* list, void* data)
+node_t* list_find_node(const list_t* restrict list, void* data)
 {
     return node_find(list->head, data, list->bytes);
 }
 
-int list_find_index(list_t* list, void* data)
+int list_find_index(const list_t* restrict list, void* data)
 {
     return node_find_index(list->head, data, list->bytes);
 }

@@ -26,20 +26,20 @@ array_t* array_new(unsigned int size, unsigned int bytes)
     return array;
 }
 
-unsigned int array_is_empty(array_t* array)
+unsigned int array_is_empty(const array_t* restrict array)
 {
     return array->used == 0;
 }
 
-unsigned int array_is_full(array_t* array)
+unsigned int array_is_full(const array_t* restrict array)
 {
     return array->used >= array->size;
 }
 
-void array_resize(array_t* array, unsigned int new_size)
+void array_resize(array_t* array, unsigned int size)
 {
-    if (new_size <= array->used) return;
-    array->size = new_size;
+    if (size <= array->used) return;
+    array->size = size;
     array->data = realloc(array->data, array->size * array->bytes);
 }
 
@@ -49,7 +49,7 @@ void array_cut(array_t* array)
     array->data = realloc(array->data, array->size * array->bytes);
 }
 
-void* array_index(array_t* array, unsigned int index)
+void* array_index(const array_t* restrict array, unsigned int index)
 {   
     return (void*)((char*)array->data + index * array->bytes);
 }
@@ -57,7 +57,7 @@ void* array_index(array_t* array, unsigned int index)
 void array_push(array_t* array, void* data)
 {
     if (array->data == NULL) array->data = malloc(array->size * array->bytes);
-    if (array_is_full(array)) array_resize(array, array->size * 2);
+    if (array->used >= array->size) array_resize(array, array->size * 2);
     memcpy(array_index(array, array->used++), data, array->bytes);
 }
 
@@ -68,11 +68,10 @@ void array_remove(array_t* array, unsigned int index)
     for (char* end = (char*)array->data + array->used * array->bytes - array->bytes; ptr != end; ptr += array->bytes) {
         memcpy(ptr, ptr + array->bytes, array->bytes);
     }
-    //bzero(ptr, array->bytes);
     array->used--;
 }
 
-int array_find(array_t* array, void* data)
+int array_find(const array_t* restrict array, void* data)
 {
     int index = 0;
     char* ptr = (char*)array->data;
@@ -85,7 +84,7 @@ int array_find(array_t* array, void* data)
 
 void* array_pop(array_t* array)
 {
-    if (array_is_empty(array)) return NULL;
+    if (!array->used) return NULL;
     return array_index(array, --array->used);
 }
 
