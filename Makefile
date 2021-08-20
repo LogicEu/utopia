@@ -21,6 +21,6 @@ endif
 libutopia.a: $(SRC)
 	$(CC) $(CFLAGS) -c $(SRC) && ar -crv $(NAME).a *.o && rm *.o
 
-shared: src/*.c
+shared: $(SRC)
 	$(CC) -o $(LIB) $(SRC) $(CFLAGS) $(OSFLAGS)
 	
