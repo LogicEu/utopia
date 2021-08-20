@@ -1,5 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
+cc=gcc
+src=src/*.c
 name=libutopia
 
 flags=(
@@ -24,12 +26,12 @@ fail_os() {
 }
 
 mac_dlib() {
-    gcc ${flags[*]} ${inc[*]} -dynamiclib src/*.c -o $name.dylib &&\
+    $cc ${flags[*]} ${inc[*]} -dynamiclib $src -o $name.dylib &&\
     install_name_tool -id @executable_path/$name.dylib $name.dylib
 }
 
 linux_dlib() {
-    gcc -shared ${flags[*]} ${inc[*]} -fPIC src/*.c -o $name.so 
+    $cc -shared ${flags[*]} ${inc[*]} -fPIC $src -o $name.so 
 }
 
 dlib() {
@@ -43,7 +45,7 @@ dlib() {
 }
 
 slib() {
-    gcc ${flags[*]} ${inc[*]} -c src/*.c && ar -crv $name.a *.o && rm *.o
+    $cc ${flags[*]} ${inc[*]} -c $src && ar -crv $name.a *.o && rm *.o
 }
 
 clean() {
