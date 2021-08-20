@@ -19,7 +19,7 @@ else
 	LIB=$(NAME).so
 endif
 
-libutopia.a: $(SRC)
+$(NAME).a: $(SRC)
 	$(CC) $(CFLAGS) -c $(SRC) && ar -crv $(NAME).a *.o && rm *.o
 
 shared: $(SRC)
