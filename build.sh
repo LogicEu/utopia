@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 cc=gcc
 src=src/*.c
