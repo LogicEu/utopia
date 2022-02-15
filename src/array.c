@@ -88,6 +88,12 @@ void* array_pop(array_t* array)
     return array_index(array, --array->used);
 }
 
+void* array_peek(const array_t* restrict array)
+{
+    if (!array->used) return NULL;
+    return array_index(array, array->used - 1);
+}
+
 void array_free(array_t* array)
 {
     if (!array || !array->data) return;

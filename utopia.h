@@ -52,6 +52,7 @@ void array_push(array_t* array, void* data);
 void array_remove(array_t* array, unsigned int index);
 int array_find(const array_t* array, void* data);
 void* array_pop(array_t* array);
+void* array_peek(const array_t* array);
 void array_free(array_t* array);
 void array_destroy(array_t* array);
 
