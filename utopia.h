@@ -49,6 +49,7 @@ void array_resize(array_t* array, unsigned int size);
 void array_cut(array_t* array);
 void* array_index(const array_t* array, unsigned int index);
 void array_push(array_t* array, void* data);
+void array_push_if(array_t* array, void* data);
 void array_remove(array_t* array, unsigned int index);
 int array_find(const array_t* array, void* data);
 void* array_pop(array_t* array);
