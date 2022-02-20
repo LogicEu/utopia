@@ -82,11 +82,14 @@ int array_find(const array_t* restrict array, void* data)
     return -1;
 }
 
-void array_push_if(array_t* array, void* data)
+int array_push_if(array_t* array, void* data)
 {
-    if (array_find(array, data) == -1) {
+    int ret = array_find(array, data);
+    if (ret == -1) {
         array_push(array, data);
+        return 0;
     }
+    return 1;
 }
 
 void* array_pop(array_t* array)
