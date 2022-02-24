@@ -6,47 +6,47 @@
  -> Generic Queue Array <- 
 *************************/
 
-queue_t queue(unsigned int size, unsigned int bytes)
+queue_t queue(const size_t size, const size_t bytes)
 {
     queue_t queue;
     queue.size = size;
     queue.bytes = bytes;
     queue.used = queue.front = 0;
     queue.rear = size - 1;
-    queue.data = malloc(size * bytes);
+    queue.data = calloc(size, bytes);
     return queue;
 }
 
-queue_t* queue_new(unsigned int size, unsigned int bytes)
+queue_t* queue_new(const size_t size, const size_t bytes)
 {
-    queue_t* queue = (queue_t*)malloc(sizeof(queue_t));
+    queue_t* queue = malloc(sizeof(queue_t));
     queue->size = size;
     queue->bytes = bytes;
     queue->used = queue->front = 0;
     queue->rear = size - 1;
-    queue->data = malloc(size * bytes);
+    queue->data = calloc(size, bytes);
     return queue;
 }
 
-unsigned int queue_is_empty(const queue_t* restrict queue)
+size_t queue_is_empty(const queue_t* restrict queue)
 {
     return queue->used == 0;
 }
 
-unsigned int queue_is_full(const queue_t* restrict queue)
+size_t queue_is_full(const queue_t* restrict queue)
 {
     return queue->used == queue->size;
 }
 
-void* queue_index(const queue_t* restrict queue, unsigned int index)
+void* queue_index(const queue_t* restrict queue, const size_t index)
 {
-    return (void*)((char*)queue->data + index * queue->bytes);
+    return _queue_index(queue, index);
 }
 
-void queue_resize(queue_t* queue, unsigned int new_size)
+void queue_resize(queue_t* queue, const size_t size)
 {
-    if (new_size < queue->used) return;
-    queue->size = new_size;
+    if (size < queue->used) return;
+    queue->size = size;
     queue->data = realloc(queue->data, queue->size * queue->bytes);
 }
 
@@ -56,13 +56,13 @@ void queue_cut(queue_t* queue)
     queue->data = realloc(queue->data, queue->size * queue->bytes);
 }
 
-void queue_push(queue_t* queue, void* data)
+void queue_push(queue_t* queue, const void* data)
 {
-    if (queue->data == NULL) queue->data = malloc(queue->size * queue->used);
+    if (!queue->data) queue->data = calloc(queue->size, queue->used);
     if (queue->used == queue->size) queue_resize(queue, queue->size * 2);
     queue->rear = (queue->rear + 1) % queue->size;
     memcpy(queue_index(queue, queue->rear), data, queue->bytes);
-    queue->used++;
+    ++queue->used;
 }
 
 void* queue_pop(queue_t* queue)
@@ -70,7 +70,7 @@ void* queue_pop(queue_t* queue)
     if (!queue->used) return NULL;
     void* ptr = queue_index(queue, queue->front);
     queue->front = (queue->front + 1) % queue->size;
-    queue->used--;
+    --queue->used;
     return ptr;
 }
 

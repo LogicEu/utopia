@@ -8,7 +8,7 @@
 
 node_t* node_new(void* data)
 {
-    node_t* node = (node_t*)malloc(sizeof(node_t));
+    node_t* node = malloc(sizeof(node_t));
     node->data = data;
     node->next = NULL;
     node->prev = NULL;
@@ -47,9 +47,9 @@ void node_remove(node_t* node)
     free(node);
 }
 
-unsigned int node_count(node_t* first)
+size_t node_count(node_t* first)
 {
-    unsigned int count = 0;
+    size_t count = 0;
     node_t* node = first;
     while (node != NULL) {
         count++;
@@ -58,7 +58,7 @@ unsigned int node_count(node_t* first)
     return count;
 }
 
-node_t* node_find(node_t* head, void* data, unsigned int bytes)
+node_t* node_find(node_t* head, const void* data, const size_t bytes)
 {
     node_t* node = head;
     while (node != NULL) {
@@ -68,21 +68,21 @@ node_t* node_find(node_t* head, void* data, unsigned int bytes)
     return NULL;
 }
 
-int node_find_index(node_t* head, void* data, unsigned int bytes)
+size_t node_find_index(node_t* head, const void* data, const size_t bytes)
 {
-    int count = 0;
+    size_t count = 0;
     node_t* node = head;
     while (node != NULL) {
-        if (memcmp(node->data, data, bytes)) return count;
-        count++;
+        if (memcmp(node->data, data, bytes)) return ++count;
         node = node->next;
+        ++count;
     }
-    return -1;
+    return 0;
 }
 
-node_t* node_index_forward(node_t* head, unsigned int index)
+node_t* node_index_forward(node_t* head, const size_t index)
 {
-    unsigned int count = 0;
+    size_t count = 0;
     node_t* node = head;
     while (node != NULL) {
         if (count++ == index) return node;
@@ -91,9 +91,9 @@ node_t* node_index_forward(node_t* head, unsigned int index)
     return node;
 }
 
-node_t* node_index_backward(node_t* tail, unsigned int index, unsigned int size)
+node_t* node_index_backward(node_t* tail, const size_t index, const size_t size)
 {
-    unsigned int count = size - 1;
+    size_t count = size - 1;
     node_t* node = tail;
     while (node != NULL) {
         if (count-- == index) return node;
