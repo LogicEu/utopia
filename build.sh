@@ -26,8 +26,7 @@ fail_os() {
 }
 
 mac_dlib() {
-    $cc ${flags[*]} ${inc[*]} -dynamiclib $src -o $name.dylib &&\
-    install_name_tool -id @executable_path/$name.dylib $name.dylib
+    $cc ${flags[*]} -mmacos-version-min=10.9 ${inc[*]} -dynamiclib $src -o $name.dylib
 }
 
 linux_dlib() {
@@ -45,7 +44,10 @@ dlib() {
 }
 
 slib() {
-    $cc ${flags[*]} ${inc[*]} -c $src && ar -crv $name.a *.o && rm *.o
+    if echo "$OSTYPE" | grep -q "darwin"; then
+        arg=-mmacos-version-min=10.9  
+    fi
+    $cc ${flags[*]} $arg ${inc[*]} -c $src && ar -crv $name.a *.o && rm *.o
 }
 
 clean() {

@@ -8,16 +8,18 @@ CC=gcc
 NAME=libutopia
 SRC=src/*.c
 
-CFLAGS=$(STD) $(WFLAGS) $(OPT) $(IDIR)
 OS=$(shell uname -s)
 
 ifeq ($(OS),Darwin)
 	OSFLAGS=-dynamiclib
 	LIB=$(NAME).dylib
+	OSARG=-mmacos-version-min=10.9
 else
 	OSFLAGS=-shared -fPIC
 	LIB=$(NAME).so
 endif
+
+CFLAGS=$(STD) $(WFLAGS) $(OPT) $(IDIR) $(OSARG)
 
 $(NAME).a: $(SRC)
 	$(CC) $(CFLAGS) -c $(SRC) && ar -crv $(NAME).a *.o && rm *.o
