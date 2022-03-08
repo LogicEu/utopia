@@ -1,6 +1,3 @@
-# utopia utilites
+# utopia
 
-Utopia is a small collection of generic and dynamic data structures written in
-C. 
-
-@eulogic
+Utopia is a small collection of generic and dynamic containers and data structures written in C. 
