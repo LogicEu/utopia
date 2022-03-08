@@ -9,10 +9,9 @@ extern "C" {
 
 >>>>>>>>>>>>>>  UTOPIA UTILITY LIBRARY   >>>>>>>>>>>>>>>>
 
-ANSI C99 header only utility library implementing simple
-generic containers and data structures 
+Simple, easy and generic container implementations in C. 
 
-============================================= @eulogic */
+================================== @Eugenio Arteaga A. */
 
 #include <stddef.h>
 
