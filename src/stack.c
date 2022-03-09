@@ -6,7 +6,7 @@
  -> Generic Stack Array <- 
 *************************/
 
-ustack_t stack(const size_t size, const size_t bytes)
+ustack_t stack_create(const size_t size, const size_t bytes)
 {
     ustack_t stack;
     stack.size = size;

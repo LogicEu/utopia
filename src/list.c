@@ -6,7 +6,7 @@
  -> Generic Doubly Linked List <- 
 ********************************/
 
-list_t list(const size_t bytes)
+list_t list_create(const size_t bytes)
 {
     list_t list;
     list.head = NULL;

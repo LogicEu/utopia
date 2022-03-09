@@ -6,7 +6,7 @@
  -> Generic Queue Array <- 
 *************************/
 
-queue_t queue(const size_t size, const size_t bytes)
+queue_t queue_create(const size_t size, const size_t bytes)
 {
     queue_t queue;
     queue.size = size;

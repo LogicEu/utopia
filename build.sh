@@ -50,8 +50,16 @@ slib() {
     $cc ${flags[*]} $arg ${inc[*]} -c $src && ar -crv $name.a *.o && rm *.o
 }
 
+cleanf() {
+    if [ -f $1 ]; then
+        rm $1
+    fi
+}
+
 clean() {
-    rm $name.a
+    cleanf $name.a
+    cleanf $name.so
+    cleanf $name.dylib
 }
 
 case "$1" in

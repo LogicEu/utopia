@@ -6,7 +6,7 @@
  -> Dynamic Generic Array <- 
 ***************************/
 
-array_t array(const size_t size, const size_t bytes)
+array_t array_create(const size_t size, const size_t bytes)
 {
     array_t array;
     array.data = calloc(size, bytes);

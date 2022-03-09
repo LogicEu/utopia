@@ -62,7 +62,7 @@ typedef array_t ustack_t;
  -> Dynamic Generic Array <- 
 ***************************/
 
-array_t array(const size_t size, const size_t bytes);
+array_t array_create(const size_t size, const size_t bytes);
 array_t* array_new(const size_t size, const size_t bytes);
 size_t array_is_empty(const array_t* array);
 size_t array_is_full(const array_t* array);
@@ -96,7 +96,7 @@ node_t* node_index_backward(node_t* tail, const size_t index, const size_t size)
  -> Generic Doubly Linked List <- 
 ********************************/
 
-list_t list(const size_t bytes);
+list_t list_create(const size_t bytes);
 list_t* list_new(const size_t bytes);
 size_t list_is_empty(const list_t* list);
 void* list_index(const list_t* list, const size_t index);
@@ -116,7 +116,7 @@ void list_destroy(list_t* list);
  -> Generic Stack Array <- 
 *************************/
 
-ustack_t stack(const size_t size, const size_t bytes);
+ustack_t stack_create(const size_t size, const size_t bytes);
 ustack_t* stack_new(const size_t size, const size_t bytes);
 size_t stack_is_empty(const ustack_t* stack);
 size_t stack_is_full(const ustack_t* stack);
@@ -133,7 +133,7 @@ void stack_destroy(ustack_t* stack);
  -> Generic Queue Array <- 
 *************************/
 
-queue_t queue(const size_t size, const size_t bytes);
+queue_t queue_create(const size_t size, const size_t bytes);
 queue_t* queue_new(const size_t size, const size_t bytes);
 size_t queue_is_empty(const queue_t* queue);
 size_t queue_is_full(const queue_t* queue);
