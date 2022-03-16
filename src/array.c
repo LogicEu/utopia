@@ -64,7 +64,7 @@ void array_push(array_t* array, const void* data)
 void array_remove(array_t* array, const size_t index)
 {
     if (index >= array->used) return;
-    char* ptr = _array_index(array, index);
+    char* ptr = (char*)array->data + index * array->bytes;
     for (const char* end = (char*)array->data + (--array->used) * array->bytes; ptr != end; ptr += array->bytes) {
         memcpy(ptr, ptr + array->bytes, array->bytes);
     }
@@ -85,6 +85,19 @@ size_t array_push_if(array_t* array, const void* data)
     const size_t find = array_find(array, data);
     if (!find) array_push(array, data);
     return find;
+}
+
+void array_set(array_t* array)
+{
+    const size_t bytes = array->bytes;
+    char* data = array->data;
+    for (size_t i = 0; i < array->used; i += bytes) {
+        for (size_t j = i + 1; j < array->used; j += bytes) {
+            if (!memcmp(data + i, data + j, bytes)) {
+                array_remove(array, j);
+            }
+        }
+    } 
 }
 
 void* array_pop(array_t* array)

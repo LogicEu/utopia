@@ -73,6 +73,7 @@ void array_push(array_t* array, const void* data);
 size_t array_push_if(array_t* array, const void* data);
 size_t array_find(const array_t* array, const void* data);
 void array_remove(array_t* array, const size_t index);
+void array_set(array_t* array);
 void* array_pop(array_t* array);
 void* array_peek(const array_t* array);
 void array_free(array_t* array);
