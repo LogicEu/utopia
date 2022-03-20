@@ -112,9 +112,16 @@ void* array_peek(const array_t* restrict array)
     return _array_index(array, array->used - 1);
 }
 
+void array_empy(array_t* array)
+{
+    if (!array->data) return;
+    memset(array->data, 0, array->size * array->bytes);
+    array->used = 0;
+}
+
 void array_free(array_t* array)
 {
-    if (!array || !array->data) return;
+    if (!array->data) return;
     free(array->data);
     array->data = NULL;
     array->used = 0;

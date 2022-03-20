@@ -76,6 +76,7 @@ void array_remove(array_t* array, const size_t index);
 void array_set(array_t* array);
 void* array_pop(array_t* array);
 void* array_peek(const array_t* array);
+void array_empty(array_t* array);
 void array_free(array_t* array);
 void array_destroy(array_t* array);
 
