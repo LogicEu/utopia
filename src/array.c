@@ -26,14 +26,15 @@ array_t* array_new(const size_t size, const size_t bytes)
     return array;
 }
 
-size_t array_is_empty(const array_t* restrict array)
+array_t* array_copy(const array_t* restrict array)
 {
-    return array->used == 0;
-}
-
-size_t array_is_full(const array_t* restrict array)
-{
-    return array->used >= array->size;
+    array_t* ret = malloc(sizeof(array_t));
+    ret->bytes = array->bytes;
+    ret->size = array->size;
+    ret->used = array->used;
+    ret->data = calloc(ret->size, ret->bytes);
+    memcpy(ret->data, array->data, ret->used * ret->bytes);
+    return ret;
 }
 
 void array_resize(array_t* array, const size_t size)
@@ -64,17 +65,19 @@ void array_push(array_t* array, const void* data)
 void array_remove(array_t* array, const size_t index)
 {
     if (index >= array->used) return;
-    char* ptr = (char*)array->data + index * array->bytes;
-    for (const char* end = (char*)array->data + (--array->used) * array->bytes; ptr != end; ptr += array->bytes) {
+    const size_t bytes = array->bytes;
+    char* ptr = (char*)array->data + index * bytes;
+    for (const char* end = (char*)array->data + (--array->used) * bytes; ptr != end; ptr += bytes) {
         memcpy(ptr, ptr + array->bytes, array->bytes);
     }
 }
 
 size_t array_find(const array_t* restrict array, const void* data)
 {
+    const size_t bytes = array->bytes;
     size_t index = 0;
     char* ptr = array->data;
-    for (const char* end = ptr + array->used * array->bytes; ptr != end; ptr += array->bytes, ++index) {
+    for (const char* end = ptr + array->used * bytes; ptr != end; ptr += bytes, ++index) {
         if (!memcmp(ptr, data, array->bytes)) return index + 1;
     }
     return 0;
@@ -90,11 +93,12 @@ size_t array_push_if(array_t* array, const void* data)
 void array_set(array_t* array)
 {
     const size_t bytes = array->bytes;
-    char* data = array->data;
-    for (size_t i = 0; i < array->used; i += bytes) {
-        for (size_t j = i + 1; j < array->used; j += bytes) {
+    const char* data = array->data;
+    for (size_t i = 0; i < array->used * bytes; i += bytes) {
+        for (size_t j = i + 1; j < array->used * bytes; j += bytes) {
             if (!memcmp(data + i, data + j, bytes)) {
                 array_remove(array, j);
+                j -= bytes;
             }
         }
     } 

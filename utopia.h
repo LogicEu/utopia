@@ -64,8 +64,7 @@ typedef array_t ustack_t;
 
 array_t array_create(const size_t size, const size_t bytes);
 array_t* array_new(const size_t size, const size_t bytes);
-size_t array_is_empty(const array_t* array);
-size_t array_is_full(const array_t* array);
+array_t* array_copy(const array_t* array);
 void array_resize(array_t* array, const size_t size);
 void array_cut(array_t* array);
 void* array_index(const array_t* array, const size_t index);
@@ -120,8 +119,6 @@ void list_destroy(list_t* list);
 
 ustack_t stack_create(const size_t size, const size_t bytes);
 ustack_t* stack_new(const size_t size, const size_t bytes);
-size_t stack_is_empty(const ustack_t* stack);
-size_t stack_is_full(const ustack_t* stack);
 void* stack_index(const ustack_t* stack, const size_t index);
 void* stack_peek(const ustack_t* stack);
 void stack_push(ustack_t* stack, const void* data);
@@ -137,8 +134,6 @@ void stack_destroy(ustack_t* stack);
 
 queue_t queue_create(const size_t size, const size_t bytes);
 queue_t* queue_new(const size_t size, const size_t bytes);
-size_t queue_is_empty(const queue_t* queue);
-size_t queue_is_full(const queue_t* queue);
 void* queue_index(const queue_t* queue, const size_t index);
 void* queue_peek(const queue_t* queue);
 void queue_push(queue_t* queue, const void* data);

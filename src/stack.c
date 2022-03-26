@@ -26,16 +26,6 @@ ustack_t* stack_new(const size_t size, const size_t bytes)
     return stack;
 }
 
-size_t stack_is_empty(const ustack_t* restrict stack)
-{
-    return stack->used == 0;
-}
-
-size_t stack_is_full(const ustack_t* restrict stack)
-{
-    return stack->used == stack->size;
-}
-
 void* stack_index(const ustack_t* restrict stack, const size_t index)
 {
     return _stack_index(stack, index);
@@ -57,19 +47,19 @@ void stack_cut(ustack_t* stack)
 void stack_push(ustack_t* stack, const void* data)
 {
     if (!stack->data) stack->data = calloc(stack->size, stack->used);
-    if (stack->used == stack->size) stack_resize(stack, stack->size * 2);
+    if (stack->used >= stack->size) stack_resize(stack, stack->size * 2);
     memcpy(_stack_index(stack, stack->used++), data, stack->bytes);
 }
 
 void* stack_pop(ustack_t* stack)
 {
-    if (stack->used == 0) return NULL;
+    if (!stack->used) return NULL;
     return _stack_index(stack, --stack->used);
 }
 
 void* stack_peek(const ustack_t* restrict stack)
 {
-    if (stack->used == 0) return NULL;
+    if (!stack->used) return NULL;
     return _stack_index(stack, stack->used);
 }
 
