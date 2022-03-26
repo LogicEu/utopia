@@ -97,8 +97,7 @@ void array_set(array_t* array)
     for (size_t i = 0; i < array->used; ++i) {
         for (size_t j = i + 1; j < array->used; ++j) {
             if (!memcmp(data + i * bytes, data + j * bytes, bytes)) {
-                array_remove(array, j);
-                --j;
+                array_remove(array, j--);
             }
         }
     } 
