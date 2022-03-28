@@ -18,13 +18,15 @@ Simple, easy and generic container implementations in C.
 typedef struct array_t {
     void* data;
     size_t bytes;
-    size_t size;
+    size_t capacity;
     size_t used;
 } array_t;
 
+typedef struct array_t ustack_t;
+
 typedef struct queue_t {
     void* data;
-    size_t size;
+    size_t capacity;
     size_t used;
     size_t bytes;
     size_t rear;
@@ -44,14 +46,11 @@ typedef struct list_t {
     size_t size;
 } list_t;
 
-typedef array_t ustack_t;
-
 /*********************************************
  -> Some macros for dangerously fast access <- 
 *********************************************/
 
-#define __array_index(array, i) ((char*)array->data + i * array->bytes)
-#define _array_index(array, i) __array_index((array), (i))
+#define _array_index(array, i) ((char*)(array)->data + (i) * (array)->bytes)
 #define _array_pop(array, i) (!array->used) ? NULL : _array_index(array, --array->used)
 #define _array_peek(array, i) (!array->used) ? NULL : _array_index(array, array->used - 1)
 
@@ -64,11 +63,11 @@ array_t array_reserve(const size_t bytes, const size_t reserve);
 array_t array_copy(const array_t* array);
 void array_push(array_t* array, const void* data);
 void array_remove(array_t* array, const size_t index);
-void array_resize(array_t* array, const size_t size);
-void array_cut(array_t* array);
 void* array_index(const array_t* array, const size_t index);
 void* array_peek(const array_t* array);
 void* array_pop(array_t* array);
+void array_resize(array_t* array, const size_t size);
+void array_cut(array_t* array);
 size_t array_find(const array_t* array, const void* data);
 size_t array_push_if(array_t* array, const void* data);
 void array_set(array_t* array);

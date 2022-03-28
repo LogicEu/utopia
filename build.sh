@@ -26,7 +26,7 @@ fail_os() {
 }
 
 mac_dlib() {
-    $cc ${flags[*]} -mmacos-version-min=10.9 ${inc[*]} -dynamiclib $src -o $name.dylib
+    $cc ${flags[*]} -mmacos-version-min=10.10 ${inc[*]} -dynamiclib $src -o $name.dylib
 }
 
 linux_dlib() {

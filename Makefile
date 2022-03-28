@@ -13,7 +13,7 @@ OS=$(shell uname -s)
 ifeq ($(OS),Darwin)
 	OSFLAGS=-dynamiclib
 	LIB=$(NAME).dylib
-	OSARG=-mmacos-version-min=10.9
+	OSARG=-mmacos-version-min=10.10
 else
 	OSFLAGS=-shared -fPIC
 	LIB=$(NAME).so
