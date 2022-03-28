@@ -16,17 +16,7 @@ list_t list_create(const size_t bytes)
     return list;
 }
 
-list_t* list_new(const size_t bytes)
-{
-    list_t* list = malloc(sizeof(list_t));
-    list->head = NULL;
-    list->tail = NULL;
-    list->bytes = bytes;
-    list->size = 0;
-    return list;
-}
-
-size_t list_is_empty(const list_t* restrict list)
+int list_is_empty(const list_t* restrict list)
 {
     return list->head == NULL;
 }
@@ -111,11 +101,4 @@ void list_free(list_t* list)
     list->size = 0;
     list->head = NULL;
     list->tail = NULL;
-}
-
-void list_destroy(list_t* list)
-{
-    if (list == NULL) return;
-    list_free(list);
-    free(list);
 }

@@ -6,74 +6,83 @@
  -> Generic Stack Array <- 
 *************************/
 
-ustack_t stack_create(const size_t size, const size_t bytes)
+ustack_t stack_create(const size_t bytes)
 {
     ustack_t stack;
-    stack.size = size;
+    stack.data = NULL;
     stack.bytes = bytes;
+    stack.size = 0;
     stack.used = 0;
-    stack.data = calloc(size, bytes);
     return stack;
 }
 
-ustack_t* stack_new(const size_t size, const size_t bytes)
+ustack_t stack_reserve(const size_t bytes, const size_t reserve)
 {
-    ustack_t* stack = malloc(sizeof(ustack_t));
-    stack->size = size;
-    stack->bytes = bytes;
-    stack->used = 0;
-    stack->data = calloc(size, bytes);
+    ustack_t stack;
+    stack.data = malloc(reserve * bytes);
+    stack.bytes = bytes;
+    stack.size = reserve;
+    stack.used = 0;
     return stack;
 }
 
-void* stack_index(const ustack_t* restrict stack, const size_t index)
+ustack_t stack_copy(const ustack_t* restrict stack)
 {
-    return _stack_index(stack, index);
+    ustack_t ret;
+    ret.data = malloc(stack->size * stack->bytes);
+    ret.bytes = stack->bytes;
+    ret.size = stack->size;
+    ret.used = stack->used;
+    memcpy(ret.data, stack->data, ret.used * ret.bytes);
+    return ret;
 }
 
-void stack_resize(ustack_t* stack, const size_t size)
+void stack_push(ustack_t* restrict stack, const void* restrict data)
 {
-    if (size < stack->used) return;
-    stack->size = size;
-    stack->data = realloc(stack->data, stack->size * stack->bytes);
+    if (stack->used >= stack->size) {
+        stack->size = stack->size * !!stack->size * 2 + !stack->size;
+        stack->data = !stack->data ? malloc(stack->size * stack->bytes) : realloc(stack->data, stack->size * stack->bytes);
+    }
+    memcpy(_array_index(stack, stack->used++), data, stack->bytes);
 }
 
-void stack_cut(ustack_t* stack)
+void* stack_pop(ustack_t* restrict stack)
 {
-    stack->size = stack->used;
-    stack->data = realloc(stack->data, stack->size * stack->bytes);
-}
-
-void stack_push(ustack_t* stack, const void* data)
-{
-    if (!stack->data) stack->data = calloc(stack->size, stack->used);
-    if (stack->used >= stack->size) stack_resize(stack, stack->size * 2);
-    memcpy(_stack_index(stack, stack->used++), data, stack->bytes);
-}
-
-void* stack_pop(ustack_t* stack)
-{
-    if (!stack->used) return NULL;
-    return _stack_index(stack, --stack->used);
+    return !stack->used ? NULL : _array_index(stack, --stack->used);
 }
 
 void* stack_peek(const ustack_t* restrict stack)
 {
-    if (!stack->used) return NULL;
-    return _stack_index(stack, stack->used);
+    return !stack->used ? NULL : _array_index(stack, stack->used - 1);
 }
 
-void stack_free(ustack_t* stack)
+void* stack_index(const ustack_t* restrict stack, const size_t index)
 {
-    if (!stack || !stack->data) return;
-    free(stack->data);
-    stack->data = NULL;
+    return _array_index(stack, index);
+}
+
+void stack_resize(ustack_t* restrict stack, const size_t size)
+{
+    stack->size = size * (size >= stack->used) + stack->used * (stack->used > size) + !size;
+    stack->data = !stack->data ? malloc(stack->size * stack->bytes) : realloc(stack->data, stack->size * stack->bytes);
+}
+
+void stack_cut(ustack_t* restrict stack)
+{
+    if (!stack->used) return;
+    stack->size = stack->used;
+    stack->data = realloc(stack->data, stack->size * stack->bytes);
+}
+
+void stack_clear(ustack_t* restrict stack)
+{
     stack->used = 0;
 }
 
-void stack_destroy(ustack_t* stack)
+void stack_free(ustack_t* restrict stack)
 {
-    if (!stack) return;
-    stack_free(stack);
-    free(stack);
+    if (stack->data) free(stack->data);
+    stack->data = NULL;
+    stack->size = 0;
+    stack->used = 0;
 }
