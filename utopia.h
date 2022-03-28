@@ -62,22 +62,22 @@ typedef array_t ustack_t;
  -> Dynamic Generic Array <- 
 ***************************/
 
-array_t array_create(const size_t size, const size_t bytes);
-array_t* array_new(const size_t size, const size_t bytes);
-array_t* array_copy(const array_t* array);
+array_t array_create(const size_t bytes);
+array_t array_reserve(const size_t bytes, const size_t reserve);
+array_t array_copy(const array_t* array);
+void array_push(array_t* array, const void* data);
+void array_remove(array_t* array, const size_t index);
 void array_resize(array_t* array, const size_t size);
 void array_cut(array_t* array);
 void* array_index(const array_t* array, const size_t index);
-void array_push(array_t* array, const void* data);
-size_t array_push_if(array_t* array, const void* data);
-size_t array_find(const array_t* array, const void* data);
-void array_remove(array_t* array, const size_t index);
-void array_set(array_t* array);
-void* array_pop(array_t* array);
 void* array_peek(const array_t* array);
-void array_empty(array_t* array);
+void* array_pop(array_t* array);
+size_t array_find(const array_t* array, const void* data);
+size_t array_push_if(array_t* array, const void* data);
+void array_set(array_t* array);
+void array_clear(array_t* array);
+void array_erase(array_t* array);
 void array_free(array_t* array);
-void array_destroy(array_t* array);
 
 /********************************
  -> Doubly Linked Generic Node <- 
