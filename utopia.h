@@ -19,16 +19,16 @@ typedef struct array_t {
     void* data;
     size_t bytes;
     size_t capacity;
-    size_t used;
+    size_t size;
 } array_t;
 
 typedef struct array_t ustack_t;
 
 typedef struct queue_t {
     void* data;
-    size_t capacity;
-    size_t used;
     size_t bytes;
+    size_t capacity;
+    size_t size;
     size_t rear;
     size_t front;
 } queue_t;
