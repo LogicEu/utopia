@@ -45,7 +45,7 @@ dlib() {
 
 slib() {
     if echo "$OSTYPE" | grep -q "darwin"; then
-        arg=-mmacos-version-min=10.9  
+        arg=-mmacos-version-min=10.10 
     fi
     $cc ${flags[*]} $arg ${inc[*]} -c $src && ar -crv $name.a *.o && rm *.o
 }
