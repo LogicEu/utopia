@@ -19,7 +19,7 @@ array_t array_create(const size_t bytes)
 array_t array_reserve(const size_t bytes, const size_t reserve)
 {
     array_t array;
-    array.data = malloc(reserve * bytes);
+    array.data = reserve ? malloc(reserve * bytes) : NULL; 
     array.bytes = bytes;
     array.capacity = reserve;
     array.size = 0;
@@ -40,7 +40,7 @@ array_t array_copy(const array_t* restrict array)
 void array_push(array_t* restrict array, const void* restrict data)
 {
     if (array->size >= array->capacity) {
-        array->capacity = array->capacity * !!array->capacity * 2 + !array->capacity;
+        array->capacity = array->capacity * 2 + !array->capacity;
         array->data = !array->data ? malloc(array->capacity * array->bytes) : realloc(array->data, array->capacity * array->bytes);
     }
     memcpy(_array_index(array, array->size++), data, array->bytes);
@@ -69,7 +69,8 @@ void* array_pop(array_t* restrict array)
 
 void array_resize(array_t* restrict array, const size_t size)
 {
-    array->capacity = size * (size >= array->size) + array->size * (array->size > size) + !size;
+    if (!size) return;
+    array->capacity = (size > array->size) ? size : array->size;
     array->data = !array->data ? malloc(array->capacity * array->bytes) : realloc(array->data, array->capacity * array->bytes);
 }
 
@@ -83,7 +84,7 @@ void array_cut(array_t* restrict array)
 size_t array_find(const array_t* restrict array, const void* restrict data)
 {
     const size_t bytes = array->bytes, count = array->size;
-    char* ptr = array->data;
+    const char* ptr = array->data;
     for (size_t i = 0; i < count; ++i, ptr += bytes) {
         if (!memcmp(ptr, data, bytes)) {
             return i + 1;
@@ -95,7 +96,7 @@ size_t array_find(const array_t* restrict array, const void* restrict data)
 size_t array_push_if(array_t* restrict array, const void* restrict data)
 {
     const size_t bytes = array->bytes, count = array->size;
-    char* ptr = array->data;
+    const char* ptr = array->data;
     for (size_t i = 0; i < count; ++i, ptr += bytes) {
         if (!memcmp(ptr, data, bytes)) {
             return i + 1;

@@ -19,7 +19,7 @@ ustack_t stack_create(const size_t bytes)
 ustack_t stack_reserve(const size_t bytes, const size_t reserve)
 {
     ustack_t stack;
-    stack.data = malloc(reserve * bytes);
+    stack.data = reserve ? malloc(reserve * bytes) : NULL;
     stack.bytes = bytes;
     stack.capacity = reserve;
     stack.size = 0;
@@ -40,7 +40,7 @@ ustack_t stack_copy(const ustack_t* restrict stack)
 void stack_push(ustack_t* restrict stack, const void* restrict data)
 {
     if (stack->size >= stack->capacity) {
-        stack->capacity = stack->capacity * !!stack->capacity * 2 + !stack->capacity;
+        stack->capacity = stack->capacity * 2 + !stack->capacity;
         stack->data = !stack->data ? malloc(stack->capacity * stack->bytes) : realloc(stack->data, stack->capacity * stack->bytes);
     }
     memcpy(_array_index(stack, stack->size++), data, stack->bytes);
@@ -63,7 +63,8 @@ void* stack_index(const ustack_t* restrict stack, const size_t index)
 
 void stack_resize(ustack_t* restrict stack, const size_t size)
 {
-    stack->capacity = size * (size >= stack->size) + stack->size * (stack->size > size) + !size;
+    if (!size) return;
+    stack->capacity = (size > stack->size) ? size : stack->size;
     stack->data = !stack->data ? malloc(stack->capacity * stack->bytes) : realloc(stack->data, stack->capacity * stack->bytes);
 }
 

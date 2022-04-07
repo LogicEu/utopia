@@ -21,12 +21,12 @@ queue_t queue_create(const size_t bytes)
 queue_t queue_reserve(const size_t bytes, const size_t reserve)
 {
     queue_t queue;
-    queue.data = malloc(bytes * reserve);
+    queue.data = reserve ? malloc(bytes * reserve) : NULL;
     queue.bytes = bytes;
     queue.capacity = reserve;
     queue.size = 0;
     queue.front = 0;
-    queue.rear = reserve - 1;
+    queue.rear = reserve ? reserve - 1 : 0;
     return queue;
 }
 
@@ -46,7 +46,7 @@ queue_t queue_copy(const queue_t* restrict queue)
 void queue_push(queue_t* restrict queue, const void* restrict data)
 {
     if (queue->size >= queue->capacity) {
-        queue->capacity = queue->capacity * !!queue->capacity * 2 + !queue->capacity;
+        queue->capacity = queue->capacity * 2 + !queue->capacity;
         queue->data = !queue->data ? malloc(queue->capacity * queue->bytes) : realloc(queue->data, queue->capacity * queue->bytes);
     }
 
@@ -57,7 +57,8 @@ void queue_push(queue_t* restrict queue, const void* restrict data)
 
 void queue_resize(queue_t* queue, const size_t size)
 {
-    queue->capacity = size * (size >= queue->size) + queue->size * (queue->size > size) + !size;
+    if (!size) return;
+    queue->capacity = (size > queue->size) ? size : queue->size;
     queue->data = !queue->data ? malloc(queue->capacity * queue->bytes) : realloc(queue->data, queue->capacity * queue->bytes);
 }
 
