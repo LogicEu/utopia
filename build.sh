@@ -9,37 +9,16 @@ flags=(
     -Wall
     -Wextra
     -O2
-)
-
-inc=(
     -I.
 )
 
-fail_op() {
-    echo "Run with -dlib to build dynamically, or -slib to build statically."
-    exit
-}
-
-fail_os() {
-    echo "OS is not supported yet..."
-    exit
-}
-
-mac_dlib() {
-    $cc ${flags[*]} -mmacos-version-min=10.10 ${inc[*]} -dynamiclib $src -o $name.dylib
-}
-
-linux_dlib() {
-    $cc -shared ${flags[*]} ${inc[*]} -fPIC $src -o $name.so 
-}
-
 dlib() {
     if echo "$OSTYPE" | grep -q "darwin"; then
-        mac_dlib
+        $cc ${flags[*]} -mmacos-version-min=10.10 -dynamiclib $src -o $name.dylib
     elif echo "$OSTYPE" | grep -q "linux"; then
-        linux_dlib
+        $cc -shared ${flags[*]} -fPIC $src -o $name.so 
     else
-        fails_os
+        echo "This OS is not supported by this shell script yet..." && exit
     fi
 }
 
@@ -47,28 +26,43 @@ slib() {
     if echo "$OSTYPE" | grep -q "darwin"; then
         arg=-mmacos-version-min=10.10 
     fi
-    $cc ${flags[*]} $arg ${inc[*]} -c $src && ar -crv $name.a *.o && rm *.o
+    $cc ${flags[*]} $arg ${inc[*]} -c $src && ar -cr $name.a *.o && rm *.o
 }
 
 cleanf() {
-    if [ -f $1 ]; then
-        rm $1
-    fi
+    [ -f $1 ] && rm $1
 }
 
 clean() {
     cleanf $name.a
     cleanf $name.so
     cleanf $name.dylib
+    return 0
+}
+
+install() {
+    [ "$EUID" -ne 0 ] && echo "Run with sudo to install in /usr/local" && exit
+    
+    dlib && slib
+    cp utopia.h /usr/local/include
+
+    [ -f $name.a ] && mv $name.a /usr/local/lib
+    [ -f $name.so ] && mv $name.so /usr/local/lib
+    [ -f $name.dylib ] && mv $name.dylib /usr/local/lib
+    return 0
 }
 
 case "$1" in
-    "-dlib")
+    "shared")
         dlib;;
-    "-slib")
+    "static")
         slib;;
-    "-clean")
+    "clean")
         clean;;
+    "install")
+        install;;
     *)
-        fail_op;;
+        echo "Run with 'shared' or 'static' to build."
+        echo "Use 'install' to build and install in /usr/local directory."
+        echo "Use 'clean' to remove builds."
 esac
