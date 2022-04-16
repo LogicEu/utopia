@@ -46,6 +46,17 @@ typedef struct list_t {
     size_t size;
 } list_t;
 
+typedef struct map_t {
+    size_t** indexes;
+    void* keys;
+    void* values;
+    size_t key_bytes;
+    size_t value_bytes;
+    size_t data_capacity;
+    size_t element_count;
+    size_t (*hash_func)(const void* key);
+} map_t;
+
 /*********************************************
  -> Some macros for dangerously fast access <- 
 *********************************************/
@@ -53,6 +64,9 @@ typedef struct list_t {
 #define _array_index(array, i) ((char*)(array)->data + (i) * (array)->bytes)
 #define _array_pop(array, i) (!array->used) ? NULL : _array_index(array, --array->used)
 #define _array_peek(array, i) (!array->used) ? NULL : _array_index(array, array->used - 1)
+
+#define _map_key_at(map, index) ((char*)(map)->keys + (map)->key_bytes * (index))
+#define _map_value_at(map, index) ((char*)(map)->values + (map)->value_bytes * (index))
 
 /***************************
  -> Dynamic Generic Array <- 
@@ -137,6 +151,32 @@ node_t* node_find(node_t* head, const void* data, const size_t bytes);
 size_t node_find_index(node_t* first, const void* data, const size_t bytes);
 node_t* node_index_forward(node_t* head, const size_t index);
 node_t* node_index_backward(node_t* tail, const size_t index, const size_t size);
+
+/***********************************
+ -> Generic <Key, Value> Hash Map <- 
+***********************************/
+
+map_t map_create(const size_t key_size, const size_t value_size);
+map_t map_reserve(const size_t key_size, const size_t value_size, const size_t reserve);
+size_t map_search(const map_t* map, const void* key);
+size_t* map_search_all(const map_t* map, const void* key);
+size_t map_capacity(const map_t* map);
+size_t map_element_count(const map_t* map);
+void* map_key_at(const map_t* map, const size_t index);
+void* map_value_at(const map_t* map, const size_t index);
+void map_overload(map_t* map, size_t (*hash_func)(const void* key));
+void map_push(map_t* map, const void* key, const void* value);
+size_t map_push_if(map_t* map, const void* key, const void* value);
+void map_resize(map_t* map, const size_t size);
+void map_remove(map_t* map, const void* key);
+void map_free(map_t* map);
+
+/*******************************
+ -> Hash Functions Prototypes <- 
+*******************************/
+
+size_t hash_cstr(const void* key);
+size_t hash_uint(const void* key);
 
 #ifdef __cplusplus
 }
