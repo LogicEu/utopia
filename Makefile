@@ -32,3 +32,6 @@ clean: build.sh
 
 install: build.sh
 	./$^ $@
+
+uninstall: build.sh
+	./$^ $@

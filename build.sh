@@ -30,7 +30,7 @@ slib() {
 }
 
 cleanf() {
-    [ -f $1 ] && rm $1
+    [ -f $1 ] && rm $1 && echo "Deleted $1"
 }
 
 clean() {
@@ -41,7 +41,7 @@ clean() {
 }
 
 install() {
-    [ "$EUID" -ne 0 ] && echo "Run with sudo to install in /usr/local" && exit
+    [ "$EUID" -ne 0 ] && echo "Run with sudo to install" && exit
     
     dlib && slib
     cp utopia.h /usr/local/include
@@ -49,6 +49,20 @@ install() {
     [ -f $name.a ] && mv $name.a /usr/local/lib
     [ -f $name.so ] && mv $name.so /usr/local/lib
     [ -f $name.dylib ] && mv $name.dylib /usr/local/lib
+    
+    echo "Succesfully installed utopia"
+    return 0
+}
+
+uninstall() {
+    [ "$EUID" -ne 0 ] && echo "Run with sudo to uninstall" && exit
+
+    cleanf /usr/local/include/utopia.h
+    cleanf /usr/local/lib/$name.a
+    cleanf /usr/local/lib/$name.so
+    cleanf /usr/local/lib/$name.dylib
+
+    echo "Succesfully uninstalled utopia"
     return 0
 }
 
@@ -61,8 +75,10 @@ case "$1" in
         clean;;
     "install")
         install;;
+    "uninstall")
+        uninstall;;
     *)
         echo "Run with 'shared' or 'static' to build."
-        echo "Use 'install' to build and install in /usr/local directory."
-        echo "Use 'clean' to remove builds."
+        echo "Use 'install' to build and install in /usr/local."
+        echo "Use 'clean' to remove local builds."
 esac
