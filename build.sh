@@ -12,7 +12,7 @@ flags=(
     -I.
 )
 
-dlib() {
+shared() {
     if echo "$OSTYPE" | grep -q "darwin"; then
         $cc ${flags[*]} -mmacos-version-min=10.10 -dynamiclib $src -o $name.dylib
     elif echo "$OSTYPE" | grep -q "linux"; then
@@ -22,15 +22,12 @@ dlib() {
     fi
 }
 
-slib() {
-    if echo "$OSTYPE" | grep -q "darwin"; then
-        arg=-mmacos-version-min=10.10 
-    fi
+static() {
     $cc ${flags[*]} $arg ${inc[*]} -c $src && ar -cr $name.a *.o && rm *.o
 }
 
 cleanf() {
-    [ -f $1 ] && rm $1 && echo "Deleted $1"
+    [ -f $1 ] && rm $1 && echo "deleted $1"
 }
 
 clean() {
@@ -43,14 +40,14 @@ clean() {
 install() {
     [ "$EUID" -ne 0 ] && echo "Run with sudo to install" && exit
     
-    dlib && slib
+    shared && static
     cp utopia.h /usr/local/include
 
     [ -f $name.a ] && mv $name.a /usr/local/lib
     [ -f $name.so ] && mv $name.so /usr/local/lib
     [ -f $name.dylib ] && mv $name.dylib /usr/local/lib
     
-    echo "Succesfully installed utopia"
+    echo "Successfully installed $name"
     return 0
 }
 
@@ -62,15 +59,15 @@ uninstall() {
     cleanf /usr/local/lib/$name.so
     cleanf /usr/local/lib/$name.dylib
 
-    echo "Succesfully uninstalled utopia"
+    echo "Successfully uninstalled $name."
     return 0
 }
 
 case "$1" in
     "shared")
-        dlib;;
+        shared;;
     "static")
-        slib;;
+        static;;
     "clean")
         clean;;
     "install")
