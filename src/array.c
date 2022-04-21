@@ -154,7 +154,7 @@ void array_restructure(array_t* restrict array, const size_t bytes)
 {
     const size_t n = bytes + !bytes;
     array->capacity = (array->capacity * array->bytes) / n;
-    array->size = (array->size * array->size) / n;
+    array->size = (array->size * array->bytes) / n;
     array->bytes = bytes + !bytes;
 }
 
