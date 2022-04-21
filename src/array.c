@@ -9,8 +9,8 @@
 array_t array_create(const size_t bytes)
 {
     array_t array;
+    array.bytes = bytes + !bytes;
     array.data = NULL;
-    array.bytes = bytes;
     array.capacity = 0;
     array.size = 0;
     return array;
@@ -19,8 +19,8 @@ array_t array_create(const size_t bytes)
 array_t array_reserve(const size_t bytes, const size_t reserve)
 {
     array_t array;
-    array.data = reserve ? malloc(reserve * bytes) : NULL; 
-    array.bytes = bytes;
+    array.bytes = bytes + !bytes;
+    array.data = reserve ? malloc(reserve * array.bytes) : NULL; 
     array.capacity = reserve;
     array.size = 0;
     return array;
@@ -33,7 +33,23 @@ array_t array_copy(const array_t* restrict array)
     ret.bytes = array->bytes;
     ret.capacity = array->capacity;
     ret.size = array->size;
+    
     memcpy(ret.data, array->data, ret.size * ret.bytes);
+    return ret;
+}
+
+array_t array_move(array_t* restrict array)
+{
+    array_t ret;
+    ret.data = array->data;
+    ret.bytes = array->bytes;
+    ret.capacity = array->capacity;
+    ret.size = array->size;
+    
+    array->size = 0;
+    array->capacity = 0;
+    array->data = NULL;
+
     return ret;
 }
 
@@ -81,6 +97,21 @@ void array_cut(array_t* restrict array)
     array->data = realloc(array->data, array->capacity * array->bytes);
 }
 
+size_t array_bytes(const array_t* restrict array)
+{
+    return array->bytes;
+}
+
+size_t array_size(const array_t* restrict array)
+{
+    return array->size;
+}
+
+size_t array_capacity(const array_t* restrict array)
+{
+    return array->capacity;
+}
+
 size_t array_find(const array_t* restrict array, const void* restrict data)
 {
     const size_t bytes = array->bytes, count = array->size;
@@ -117,6 +148,14 @@ void array_set(array_t* restrict array)
             }
         }
     } 
+}
+
+void array_restructure(array_t* restrict array, const size_t bytes)
+{
+    const size_t n = bytes + !bytes;
+    array->capacity = (array->capacity * array->bytes) / n;
+    array->size = (array->size * array->size) / n;
+    array->bytes = bytes + !bytes;
 }
 
 void array_clear(array_t* restrict array)

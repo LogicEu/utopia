@@ -9,8 +9,8 @@
 queue_t queue_create(const size_t bytes)
 {
     queue_t queue;
+    queue.bytes = bytes + !bytes;
     queue.data = NULL;
-    queue.bytes = bytes;
     queue.capacity = 0;
     queue.size = 0;
     queue.front = 0;
@@ -21,8 +21,8 @@ queue_t queue_create(const size_t bytes)
 queue_t queue_reserve(const size_t bytes, const size_t reserve)
 {
     queue_t queue;
-    queue.data = reserve ? malloc(bytes * reserve) : NULL;
-    queue.bytes = bytes;
+    queue.bytes = bytes + !bytes;
+    queue.data = reserve ? malloc(queue.bytes * reserve) : NULL;
     queue.capacity = reserve;
     queue.size = 0;
     queue.front = 0;
@@ -39,7 +39,27 @@ queue_t queue_copy(const queue_t* restrict queue)
     ret.size = queue->size;
     ret.front = queue->front;
     ret.rear = queue->rear;
+    
     memcpy(ret.data, queue->data, ret.bytes * ret.size);
+    return ret;
+}
+
+queue_t queue_move(queue_t* restrict queue)
+{
+    queue_t ret;
+    ret.data = queue->data;
+    ret.bytes = queue->bytes;
+    ret.capacity = queue->capacity;
+    ret.size = queue->size;
+    ret.front = queue->front;
+    ret.rear = queue->rear;
+    
+    queue->size = 0;
+    queue->front = 0;
+    queue->rear = 0;
+    queue->capacity = 0;
+    queue->data = NULL;
+
     return ret;
 }
 
@@ -88,6 +108,31 @@ void* queue_index(const queue_t* restrict queue, const size_t index)
     return _array_index(queue, index);
 }
 
+size_t queue_bytes(const queue_t* restrict queue)
+{
+    return queue->bytes;
+}
+
+size_t queue_size(const queue_t* restrict queue)
+{
+    return queue->size;
+}
+
+size_t queue_capacity(const queue_t* restrict queue)
+{
+    return queue->capacity;
+}
+
+size_t queue_rear(const queue_t* restrict queue)
+{
+    return queue->rear;
+}
+
+size_t queue_front(const queue_t* restrict queue)
+{
+    return queue->front;
+}
+
 void queue_clear(queue_t* restrict queue)
 {
     queue->size = 0;
@@ -104,4 +149,3 @@ void queue_free(queue_t* restrict queue)
     queue->front = 0;
     queue->rear = 0;
 }
-
