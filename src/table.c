@@ -38,6 +38,18 @@ table_t table_create(const size_t bytes)
     return table;
 }
 
+size_t table_search(const table_t* restrict table, const void* restrict data)
+{
+    const size_t bytes = table->bytes, count = table->size;
+    const char* ptr = table->data;
+    for (size_t i = 0; i < count; ++i, ptr += bytes) {
+        if (!memcmp(ptr, data, bytes)) {
+            return i + 1;
+        }
+    }
+    return 0;
+}
+
 void table_push_index(table_t* restrict table, const size_t index)
 {
     size_t cnt = idxcnt(table->indices);
@@ -59,16 +71,9 @@ void table_push_index(table_t* restrict table, const size_t index)
 }
 
 size_t table_push_data(table_t* restrict table, const void* restrict data)
-{
-    const size_t bytes = table->bytes, count = table->size;
-    const char* ptr = table->data;
-    for (size_t i = 0; i < count; ++i, ptr += bytes) {
-        if (!memcmp(ptr, data, bytes)) {
-            return i + 1;
-        }
-    }
-    
-    const size_t len = bytes * count;
+{    
+    const size_t bytes = table->bytes;
+    const size_t len = bytes * table->size;
     const size_t cap = memcap(len);
 
     if (len + bytes > cap) {
@@ -79,13 +84,15 @@ size_t table_push_data(table_t* restrict table, const void* restrict data)
     return 0;
 }
 
-
-
 size_t table_push(table_t* restrict table, const void* restrict data)
 {
-    size_t search = table_push_data(table, data);
-    search = !search ? table->size - 1: search - 1;
-    table_push_index(table, search);
+    size_t search = table_search(table, data); 
+    if (!search) {
+        table_push_data(table, data);
+        search = table->size;
+    } 
+
+    table_push_index(table, --search);
     return search;
 }
 
