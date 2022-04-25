@@ -107,8 +107,10 @@ table_t table_compress(const array_t* restrict buffer)
 array_t table_decompress(const table_t* restrict table)
 {
     array_t array = array_create(table->bytes);
-    for (size_t i = 0; i < table->indices[i]; ++i) {
-        array_push(&array, _array_index(table, table->indices[i] - 1));
+    if (table->indices) {
+        for (size_t i = 0; table->indices[i]; ++i) {
+            array_push(&array, _array_index(table, table->indices[i] - 1));
+        }
     }
     return array;
 }
