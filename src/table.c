@@ -8,13 +8,21 @@
 
 static inline size_t memcap(const size_t memlen)
 {
+    if (!memlen) {
+        return 0;
+    }
+
     size_t i;
-    for (i = !!memlen; i && i < memlen; i <<= 1) {}
+    for (i = 1; i < memlen; i <<= 1) {}
     return i;
 }
 
 static inline size_t idxcnt(const size_t* indices)
 {
+    if (!indices) {
+        return 0;
+    }
+
     size_t i;
     for (i = 0; indices[i]; ++i) {}
     return i;
@@ -32,13 +40,12 @@ table_t table_create(const size_t bytes)
 
 void table_push_index(table_t* restrict table, const size_t index)
 {
-    size_t cnt;
+    size_t cnt = idxcnt(table->indices);
 
-    if (!table->indices) {
+    if (!cnt) {
         table->indices = malloc(sizeof(size_t) * 2);
-        cnt = 0;
     } else {
-        cnt = idxcnt(table->indices);
+
         const size_t len = (cnt + 1) * sizeof(size_t);
         const size_t cap = memcap(len);
 
