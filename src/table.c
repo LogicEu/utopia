@@ -20,7 +20,17 @@ static inline size_t idxcnt(const size_t* indices)
     return i;
 }
 
-static inline void table_push_index(table_t* restrict table, const size_t index)
+table_t table_create(const size_t bytes)
+{
+    table_t table;
+    table.indices = NULL;
+    table.data = NULL;
+    table.bytes = bytes;
+    table.size = 0;
+    return table;
+}
+
+void table_push_index(table_t* restrict table, const size_t index)
 {
     size_t cnt;
 
@@ -32,7 +42,7 @@ static inline void table_push_index(table_t* restrict table, const size_t index)
         const size_t len = (cnt + 1) * sizeof(size_t);
         const size_t cap = memcap(len);
 
-        if (len >= cap) {
+        if (len + sizeof(size_t) > cap) {
             table->indices = realloc(table->indices, cap * 2);
         }
     }
@@ -41,7 +51,7 @@ static inline void table_push_index(table_t* restrict table, const size_t index)
     table->indices[cnt + 1] = 0;
 }
 
-static inline size_t table_push_data(table_t* restrict table, const void* restrict data)
+size_t table_push_data(table_t* restrict table, const void* restrict data)
 {
     const size_t bytes = table->bytes, count = table->size;
     const char* ptr = table->data;
@@ -54,24 +64,15 @@ static inline size_t table_push_data(table_t* restrict table, const void* restri
     const size_t len = bytes * count;
     const size_t cap = memcap(len);
 
-    if (len >= cap) {
+    if (len + bytes > cap) {
         table->data = !table->data ? malloc(memcap(bytes)) : realloc(table->data, cap * 2);
     }
 
     memcpy(_array_index(table, table->size++), data, bytes);
-
     return 0;
 }
 
-table_t table_create(const size_t bytes)
-{
-    table_t table;
-    table.indices = NULL;
-    table.data = NULL;
-    table.bytes = bytes;
-    table.size = 0;
-    return table;
-}
+
 
 size_t table_push(table_t* restrict table, const void* restrict data)
 {

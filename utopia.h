@@ -131,6 +131,8 @@ void queue_free(queue_t* queue);
 
 table_t table_create(const size_t bytes);
 size_t table_push(table_t* table, const void* data);
+void table_push_index(table_t* table, const size_t index);
+size_t table_push_data(table_t* table, const void* data);
 table_t table_compress(const array_t* buffer);
 array_t table_decompress(const table_t* table);
 void* table_values(const table_t* table);
