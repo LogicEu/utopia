@@ -66,14 +66,14 @@ void* list_pop(list_t* list)
     return list_pop_node(list, list->tail);
 }
 
-node_t* list_find_node(const list_t* restrict list, const void* data)
+node_t* list_search_node(const list_t* restrict list, const void* data)
 {
-    return node_find(list->head, data, list->bytes);
+    return node_search(list->head, data, list->bytes);
 }
 
-size_t list_find_index(const list_t* restrict list, const void* data)
+size_t list_search_index(const list_t* restrict list, const void* data)
 {
-    return node_find_index(list->head, data, list->bytes);
+    return node_search_index(list->head, data, list->bytes);
 }
 
 void* list_pop_index(list_t* restrict list, const size_t index)

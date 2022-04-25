@@ -77,24 +77,34 @@ void queue_push(queue_t* restrict queue, const void* restrict data)
 
 void queue_resize(queue_t* queue, const size_t size)
 {
-    if (!size) return;
+    if (!size) {
+        return;
+    }
+
     queue->capacity = (size > queue->size) ? size : queue->size;
     queue->data = !queue->data ? malloc(queue->capacity * queue->bytes) : realloc(queue->data, queue->capacity * queue->bytes);
 }
 
 void queue_cut(queue_t* queue)
 {
-    if (!queue->size) return;
+    if (!queue->size) {
+        return;
+    }
+
     queue->capacity = queue->size;
     queue->data = realloc(queue->data, queue->capacity * queue->bytes);
 }
 
 void* queue_pop(queue_t* restrict queue)
 {
-    if (!queue->size) return NULL;
+    if (!queue->size) {
+        return NULL;
+    }
+
     void* ptr = _array_index(queue, queue->front);
     queue->front = (queue->front + 1) % queue->capacity;
     --queue->size;
+    
     return ptr;
 }
 
@@ -142,7 +152,10 @@ void queue_clear(queue_t* restrict queue)
 
 void queue_free(queue_t* restrict queue)
 {
-    if (queue->data) free(queue->data);
+    if (queue->data) {
+        free(queue->data);
+    }
+
     queue->data = NULL;
     queue->capacity = 0;
     queue->size = 0;

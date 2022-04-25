@@ -77,7 +77,7 @@ size_t node_count(node_t* restrict first)
     return count;
 }
 
-node_t* node_find(node_t* restrict head, const void* restrict data, const size_t bytes)
+node_t* node_search(node_t* restrict head, const void* restrict data, const size_t bytes)
 {
     node_t* node = head;
     while (node != NULL) {
@@ -89,7 +89,7 @@ node_t* node_find(node_t* restrict head, const void* restrict data, const size_t
     return NULL;
 }
 
-size_t node_find_index(node_t* restrict head, const void* restrict data, const size_t bytes)
+size_t node_search_index(node_t* restrict head, const void* restrict data, const size_t bytes)
 {
     size_t count = 0;
     node_t* node = head;
