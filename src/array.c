@@ -68,7 +68,7 @@ void array_push(array_t* restrict array, const void* restrict data)
 {
     if (array->size == array->capacity) {
         array->capacity = array->capacity * 2 + !array->capacity;
-        array->data = !array->data ? malloc(array->capacity * array->bytes) : realloc(array->data, array->capacity * array->bytes);
+        array->data = realloc(array->data, array->capacity * array->bytes);
     }
     memcpy(_array_index(array, array->size++), data, array->bytes);
 }
@@ -77,7 +77,7 @@ void array_push_block(array_t* array, const void* data, const size_t count)
 {
     while (array->size + count > array->capacity) {
         array->capacity = array->capacity * 2 + !array->capacity;
-        array->data = !array->data ? malloc(array->capacity * array->bytes) : realloc(array->data, array->capacity * array->bytes);
+        array->data = realloc(array->data, array->capacity * array->bytes);
     }
     memcpy(_array_index(array, array->size), data, count * array->bytes);
     array->size += count;
@@ -172,6 +172,7 @@ size_t* array_search_all(const array_t* restrict array, const void* restrict dat
     const size_t elements = j;
     size_t* idx = malloc((elements + 1) * sizeof(size_t));
     memcpy(idx, indices, elements * sizeof(size_t));
+    idx[elements] = 0;
 
     return idx;
 }
@@ -185,6 +186,7 @@ size_t array_push_if(array_t* restrict array, const void* restrict data)
             return i + 1;
         }
     }
+    
     array_push(array, data);
     return 0;
 }
@@ -204,21 +206,15 @@ void array_set(array_t* restrict array)
 
 void array_resize(array_t* restrict array, const size_t size)
 {
-    if (!size) {
-        return;
-    }
-
     array->capacity = (size > array->size) ? size : array->size;
-    array->data = !array->data ? malloc(array->capacity * array->bytes) : realloc(array->data, array->capacity * array->bytes);
+    if (array->capacity) {
+        array->data = realloc(array->data, array->capacity * array->bytes);
+    }
 }
 
 void array_cut(array_t* restrict array)
 {
-    if (!array->size) {
-        return;
-    }
-
-    array->capacity = array->size;
+    array->capacity = array->size + !array->size;
     array->data = realloc(array->data, array->capacity * array->bytes);
 }
 
