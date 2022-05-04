@@ -2,31 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "bucket.h"
+
 /**********************************
  -> Indexed Table Data Structure <- 
 **********************************/
-
-static inline size_t memcap(const size_t memlen)
-{
-    if (!memlen) {
-        return 0;
-    }
-
-    size_t i;
-    for (i = 1; i < memlen; i <<= 1) {}
-    return i;
-}
-
-static inline size_t idxcnt(const size_t* indices)
-{
-    if (!indices) {
-        return 0;
-    }
-
-    size_t i;
-    for (i = 0; indices[i]; ++i) {}
-    return i;
-}
 
 table_t table_create(const size_t bytes)
 {
@@ -35,6 +15,7 @@ table_t table_create(const size_t bytes)
     table.data = NULL;
     table.bytes = bytes;
     table.size = 0;
+    table.capacity = 0;
     return table;
 }
 
@@ -50,38 +31,18 @@ size_t table_search(const table_t* restrict table, const void* restrict data)
     return 0;
 }
 
-void table_push_index(table_t* restrict table, const size_t index)
+void table_push_index(table_t* restrict table, const index_t index)
 {
-    size_t cnt = idxcnt(table->indices);
-
-    if (!cnt) {
-        table->indices = malloc(sizeof(size_t) * 2);
-    } else {
-
-        const size_t len = (cnt + 1) * sizeof(size_t);
-        const size_t cap = memcap(len);
-
-        if (len + sizeof(size_t) > cap) {
-            table->indices = realloc(table->indices, cap * 2);
-        }
-    }
-
-    table->indices[cnt] = index + 1;
-    table->indices[cnt + 1] = 0;
+    table->indices = bucket_push(table->indices, index);
 }
 
-size_t table_push_data(table_t* restrict table, const void* restrict data)
-{    
-    const size_t bytes = table->bytes;
-    const size_t len = bytes * table->size;
-    const size_t cap = memcap(len);
-
-    if (len + bytes > cap) {
-        table->data = !table->data ? malloc(memcap(bytes)) : realloc(table->data, cap * 2);
+void table_push_data(table_t* restrict table, const void* restrict data)
+{ 
+    if (table->size == table->capacity) {
+        table->capacity = table->capacity * 2 + !table->capacity;
+        table->data = realloc(table->data, table->capacity * table->bytes);
     }
-
-    memcpy(_array_index(table, table->size++), data, bytes);
-    return 0;
+    memcpy(_array_index(table, table->size++), data, table->bytes);
 }
 
 size_t table_push(table_t* restrict table, const void* restrict data)
@@ -92,8 +53,27 @@ size_t table_push(table_t* restrict table, const void* restrict data)
         search = table->size;
     } 
 
-    table_push_index(table, --search);
+    table_push_index(table, search - 1);
     return search;
+}
+
+void table_remove(table_t* restrict table, const index_t index)
+{
+    if (table->indices) {
+        char* ptr = _array_index(table, index);
+        memmove(ptr, ptr + table->bytes, (--table->size - index) * table->bytes);
+        
+        index_t* indices = table_indices(table);
+        const size_t size = table_indices_size(table);
+        for (size_t i = 0; i < size; ++i) {
+            if (indices[i] == index) {
+                bucket_remove(table->indices, (index_t)i);
+            } 
+            else if (table->indices[i] > index) {
+                --table->indices[i];
+            }
+        }
+    }
 }
 
 table_t table_compress(const array_t* restrict buffer)
@@ -114,10 +94,9 @@ table_t table_compress(const array_t* restrict buffer)
 array_t table_decompress(const table_t* restrict table)
 {
     array_t array = array_create(table->bytes);
-    if (table->indices) {
-        for (size_t i = 0; table->indices[i]; ++i) {
-            array_push(&array, _array_index(table, table->indices[i] - 1));
-        }
+    const size_t size = bucket_size(table->indices) + BUCKET_DATA_INDEX;
+    for (size_t i = BUCKET_DATA_INDEX; i < size; ++i) {
+        array_push(&array, _array_index(table, table->indices[i]));
     }
     return array;
 }
@@ -132,19 +111,19 @@ void* table_value_at(const table_t* restrict table, const size_t index)
     return _table_value_at(table, index);
 }
 
-size_t* table_indices(const table_t* restrict table)
+index_t* table_indices(const table_t* restrict table)
 {
-    return table->indices;
+    return table->indices + BUCKET_DATA_INDEX;
 }
 
-size_t table_index_at(const table_t* restrict table, const size_t index)
+index_t table_index_at(const table_t* restrict table, const size_t index)
 {
     return _table_index_at(table, index);
 }
 
 size_t table_indices_size(const table_t* restrict table)
 {
-    return idxcnt(table->indices);
+    return bucket_size(table->indices);
 }
 
 size_t table_values_size(const table_t* restrict table)
@@ -162,9 +141,10 @@ void table_free(table_t* restrict table)
     if (table->data) {
         free(table->data);
         free(table->indices);
-    }
 
-    table->data = NULL;
-    table->indices = NULL;
-    table->size = 0;
+        table->data = NULL;
+        table->indices = NULL;
+        table->size = 0;
+        table->capacity = 0;
+    }
 }

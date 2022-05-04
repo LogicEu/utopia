@@ -15,6 +15,12 @@ Simple, easy and generic container implementations in C.
 
 #include <stddef.h>
 
+#define UTOPIA_HASH_SIZE 32
+#define UTOPIA_INDEX_TYPE size_t
+
+typedef UTOPIA_INDEX_TYPE index_t;
+typedef index_t* bucket_t;
+
 typedef struct array_t {
     void* data;
     size_t bytes;
@@ -32,19 +38,31 @@ typedef struct queue_t {
 } queue_t;
 
 typedef struct table_t {
-    size_t* indices;
+    index_t* indices;
     void* data;
     size_t bytes;
+    size_t capacity;
     size_t size;
 } table_t;
 
+typedef struct hash_t {
+    bucket_t* indices;
+    void* data;
+    size_t bytes;
+    size_t size;
+    size_t mod;
+    size_t (*func)(const void*);
+} hash_t;
+
 typedef struct map_t {
-    size_t* indices;
+    bucket_t* indices;
     void* keys;
     void* values;
     size_t key_bytes;
     size_t value_bytes;
-    size_t (*hash)(const void* key);
+    size_t size;
+    size_t mod;
+    size_t (*func)(const void*);
 } map_t;
 
 typedef struct node_t {
@@ -64,13 +82,14 @@ typedef struct list_t {
  -> Some macros for dangerously fast access <- 
 *********************************************/
 
+#define _array_create(bytes) (array_t){NULL, bytes, 0, 0}
 #define _array_index(array, i) ((char*)(array)->data + (i) * (array)->bytes)
 
-#define _table_index_at(table, i) ((table)->indices[i] - 1)
+#define _table_index_at(table, i) ((table)->indices[i + 2])
 #define _table_value_at(table, i) (_array_index((table), _table_index_at(table, i)))
 
-#define _map_key_at(map, index) ((char*)(map)->keys + (map)->key_bytes * (index))
-#define _map_value_at(map, index) ((char*)(map)->values + (map)->value_bytes * (index))
+#define _map_key_at(map, i) ((char*)(map)->keys + (map)->key_bytes * (i))
+#define _map_value_at(map, i) ((char*)(map)->values + (map)->value_bytes * (i))
 
 /***************************
  -> Dynamic Generic Array <- 
@@ -131,18 +150,38 @@ void queue_free(queue_t* queue);
 
 table_t table_create(const size_t bytes);
 size_t table_push(table_t* table, const void* data);
-void table_push_index(table_t* table, const size_t index);
-size_t table_push_data(table_t* table, const void* data);
+void table_push_index(table_t* table, const index_t index);
+void table_push_data(table_t* table, const void* data);
+void table_remove(table_t* table, const index_t index);
 table_t table_compress(const array_t* buffer);
 array_t table_decompress(const table_t* table);
 void* table_values(const table_t* table);
 void* table_value_at(const table_t* table, const size_t index);
-size_t* table_indices(const table_t* table);
-size_t table_index_at(const table_t* table, const size_t index);
+index_t* table_indices(const table_t* table);
+index_t table_index_at(const table_t* table, const size_t index);
 size_t table_indices_size(const table_t* table);
 size_t table_values_size(const table_t* table);
 size_t table_bytes(const table_t* table);
 void table_free(table_t* table);
+
+/********************************
+ -> Generic Hash Indexed Table <- 
+********************************/
+
+hash_t hash_create(const size_t bytes);
+hash_t hash_reserve(const size_t bytes, const size_t reserve);
+index_t hash_search(const hash_t* table, const void* data);
+index_t* hash_search_all(const hash_t* table, const void* data);
+void hash_overload(hash_t* hash, size_t (*func)(const void*));
+void* hash_index(const hash_t* table, const size_t index);
+size_t hash_size(const hash_t* table);
+size_t hash_capacity(const hash_t* table);
+size_t hash_bytes(const hash_t* table);
+void hash_resize(hash_t* table, const size_t new_size);
+void hash_push(hash_t* table, const void* data);
+size_t hash_push_if(hash_t* table, const void* data);
+void hash_remove(hash_t* table, const void* data);
+void hash_free(hash_t* table);
 
 /***********************************
  -> Generic <Key, Value> Hash Map <- 
@@ -150,21 +189,18 @@ void table_free(table_t* table);
 
 map_t map_create(const size_t key_size, const size_t value_size);
 map_t map_reserve(const size_t key_size, const size_t value_size, const size_t reserve);
-size_t map_search(const map_t* map, const void* key);
-size_t* map_search_all(const map_t* map, const void* key);
-size_t* map_bucket_at(const map_t* map, const size_t index);
+index_t map_search(const map_t* map, const void* key);
+index_t* map_search_all(const map_t* map, const void* key);
+void map_overload(map_t* map, size_t (*hash_func)(const void*));
+void* map_key_at(const map_t* map, const size_t index);
+void* map_value_at(const map_t* map, const size_t index);
 size_t map_size(const map_t* map);
 size_t map_capacity(const map_t* map);
 size_t map_key_bytes(const map_t* map);
 size_t map_value_bytes(const map_t* map);
-size_t map_bucket_count(const map_t* map);
-size_t map_bucket_size(const size_t* bucket);
-void* map_key_at(const map_t* map, const size_t index);
-void* map_value_at(const map_t* map, const size_t index);
-void map_overload(map_t* map, size_t (*hash_func)(const void* key));
+void map_resize(map_t* map, const size_t size);
 void map_push(map_t* map, const void* key, const void* value);
 size_t map_push_if(map_t* map, const void* key, const void* value);
-void map_resize(map_t* map, const size_t size);
 void map_remove(map_t* map, const void* key);
 void map_free(map_t* map);
 
@@ -200,6 +236,14 @@ node_t* node_search(node_t* head, const void* data, const size_t bytes);
 size_t node_search_index(node_t* first, const void* data, const size_t bytes);
 node_t* node_index_forward(node_t* head, const size_t index);
 node_t* node_index_backward(node_t* tail, const size_t index, const size_t size);
+
+/****************************
+ -> Index Bucket Interface <- 
+****************************/
+
+size_t bucket_size(const bucket_t bucket);
+size_t bucket_capacity(const bucket_t bucket);
+index_t* bucket_data(const bucket_t bucket);
 
 /*******************************
  -> Hash Functions Prototypes <- 
