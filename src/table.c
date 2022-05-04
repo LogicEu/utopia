@@ -13,7 +13,7 @@ table_t table_create(const size_t bytes)
     table_t table;
     table.indices = NULL;
     table.data = NULL;
-    table.bytes = bytes;
+    table.bytes = bytes + !bytes;
     table.size = 0;
     table.capacity = 0;
     return table;
