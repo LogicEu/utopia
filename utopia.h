@@ -246,8 +246,7 @@ node_t* node_index_backward(node_t* tail, const size_t index, const size_t size)
  -> Dynamic String Container <- 
 ******************************/
 
-string_t string_create(void);
-string_t string_read(const char* buffer);
+string_t string_create(const char* data);
 string_t string_copy(const string_t* str);
 void string_push(string_t* str, const char* buffer);
 void string_concat(string_t* str1, const string_t* str2);
@@ -258,6 +257,7 @@ size_t string_search(const string_t* str, const char* search);
 size_t* string_search_all(const string_t* str, const char* search);
 void string_remove(string_t* str, const char* search);
 void string_remove_all(string_t* str, const char* search);
+void string_reverse(string_t* restrict str);
 void string_clear(string_t* str);
 void string_free(string_t* str);
 

@@ -2,23 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-string_t string_create(void)
+string_t string_create(const char* restrict data)
 {
+    const size_t len = data ? strlen(data) : 0;
+    
     string_t str;
-    str.data = NULL;
-    str.capacity = 0;
-    str.size = 0;
-    return str;
-}
-
-string_t string_read(const char* restrict buffer)
-{
-    string_t str;
-    const size_t len = strlen(buffer);
-    str.capacity = len + !!len;
+    str.capacity = len + !!data;
     str.size = len;
     str.data = str.capacity ? malloc(str.capacity) : NULL;
-    memcpy(str.data, buffer, len + 1);
+    memcpy(str.data, data, str.capacity);
+
     return str;
 }
 
@@ -103,10 +96,10 @@ void string_remove(string_t* restrict str, const char* restrict search)
 {
     if (str->data) {
         const size_t len = strlen(search);
-        char* find = str->data;
-        while ((find = strstr(find, search))) {
+        char* find = strstr(str->data, search);
+        if (find) {
             memmove(find, find + len, (find - str->data) - len);
-            ++find;
+            str->size -= len;
         }
     }
 }
@@ -115,11 +108,23 @@ void string_remove_all(string_t* restrict str, const char* restrict search)
 {
     if (str->data) {
         const size_t len = strlen(search);
-        char* find = strstr(str->data, search);
-        if (find) {
+        char* find = str->data;
+        while ((find = strstr(find, search))) {
             memmove(find, find + len, (find - str->data) - len);
+            str->size -= len;
+            ++find;
         }
     }
+}
+
+void string_reverse(string_t* restrict str)
+{
+    const size_t size = str->size;
+    char buff[size + 1];
+    for (size_t i = 0; i < size; ++i) {
+        buff[size - i] = str->data[i];
+    }
+    memcpy(str->data, buff, size);
 }
 
 void string_clear(string_t* restrict str)
