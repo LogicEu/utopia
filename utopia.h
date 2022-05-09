@@ -32,7 +32,6 @@ typedef struct queue_t {
     void* data;
     size_t bytes;
     size_t capacity;
-    size_t size;
     size_t rear;
     size_t front;
 } queue_t;
@@ -77,6 +76,12 @@ typedef struct list_t {
     size_t bytes;
     size_t size;
 } list_t;
+
+typedef struct string_t {
+    char* data;
+    size_t capacity;
+    size_t size;
+} string_t;
 
 /*********************************************
  -> Some macros for dangerously fast access <- 
@@ -236,6 +241,25 @@ node_t* node_search(node_t* head, const void* data, const size_t bytes);
 size_t node_search_index(node_t* first, const void* data, const size_t bytes);
 node_t* node_index_forward(node_t* head, const size_t index);
 node_t* node_index_backward(node_t* tail, const size_t index, const size_t size);
+
+/******************************
+ -> Dynamic String Container <- 
+******************************/
+
+string_t string_create(void);
+string_t string_read(const char* buffer);
+string_t string_copy(const string_t* str);
+void string_push(string_t* str, const char* buffer);
+void string_concat(string_t* str1, const string_t* str2);
+size_t string_capacity(const string_t* str);
+size_t string_size(const string_t* str);
+char* string_data(const string_t* str);
+size_t string_search(const string_t* str, const char* search);
+size_t* string_search_all(const string_t* str, const char* search);
+void string_remove(string_t* str, const char* search);
+void string_remove_all(string_t* str, const char* search);
+void string_clear(string_t* str);
+void string_free(string_t* str);
 
 /****************************
  -> Index Bucket Interface <- 

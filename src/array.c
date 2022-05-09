@@ -235,9 +235,8 @@ void array_free(array_t* restrict array)
 {
     if (array->data) {
         free(array->data);
+        array->data = NULL;
+        array->capacity = 0;
+        array->size = 0;
     }
-
-    array->data = NULL;
-    array->capacity = 0;
-    array->size = 0;
 }
