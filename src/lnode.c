@@ -6,34 +6,34 @@
  -> Doubly Linked Generic Node <- 
 ********************************/
 
-node_t* node_create(void* restrict data)
+lnode_t* lnode_create(void* restrict data)
 {
-    node_t* node = malloc(sizeof(node_t));
+    lnode_t* node = malloc(sizeof(lnode_t));
     node->data = data;
     node->next = NULL;
     node->prev = NULL;
     return node;
 }
 
-void node_push(node_t* restrict head, void* restrict data)
+void lnode_push(lnode_t* restrict head, void* restrict data)
 {
     if (!head) {
         return;
     }
     
-    node_t* node = head;
+    lnode_t* node = head;
     while (node->next != NULL) {
         node = node->next;
     }
     
-    node->next = node_create(data);
+    node->next = lnode_create(data);
     node->next->prev = node;
 }
 
-void* node_pop(node_t* restrict node)
+void* lnode_pop(lnode_t* restrict node)
 {
-    node_t* next = node->next;
-    node_t* prev = node->prev;
+    lnode_t* next = node->next;
+    lnode_t* prev = node->prev;
     
     if (prev) {
         prev->next = next;
@@ -49,10 +49,10 @@ void* node_pop(node_t* restrict node)
     return ret;
 }
 
-void node_remove(node_t* restrict node)
+void lnode_remove(lnode_t* restrict node)
 {
-    node_t* next = node->next;
-    node_t* prev = node->prev;
+    lnode_t* next = node->next;
+    lnode_t* prev = node->prev;
     
     if (prev) {
         prev->next = next;
@@ -66,10 +66,10 @@ void node_remove(node_t* restrict node)
     free(node);
 }
 
-size_t node_count(node_t* restrict first)
+size_t lnode_count(lnode_t* restrict first)
 {
     size_t count = 0;
-    node_t* node = first;
+    lnode_t* node = first;
     while (node != NULL) {
         ++count;
         node = node->next;
@@ -77,9 +77,9 @@ size_t node_count(node_t* restrict first)
     return count;
 }
 
-node_t* node_search(node_t* restrict head, const void* restrict data, const size_t bytes)
+lnode_t* lnode_search(lnode_t* restrict head, const void* restrict data, const size_t bytes)
 {
-    node_t* node = head;
+    lnode_t* node = head;
     while (node != NULL) {
         if (memcmp(node->data, data, bytes)) {
             return node;
@@ -89,10 +89,10 @@ node_t* node_search(node_t* restrict head, const void* restrict data, const size
     return NULL;
 }
 
-size_t node_search_index(node_t* restrict head, const void* restrict data, const size_t bytes)
+size_t lnode_search_index(lnode_t* restrict head, const void* restrict data, const size_t bytes)
 {
     size_t count = 0;
-    node_t* node = head;
+    lnode_t* node = head;
     while (node != NULL) {
         ++count;
         if (memcmp(node->data, data, bytes)) {
@@ -103,10 +103,10 @@ size_t node_search_index(node_t* restrict head, const void* restrict data, const
     return 0;
 }
 
-node_t* node_index_forward(node_t* restrict head, const size_t index)
+lnode_t* lnode_index_forward(lnode_t* restrict head, const size_t index)
 {
     size_t count = 0;
-    node_t* node = head;
+    lnode_t* node = head;
     while (node != NULL) {
         if (count++ == index) {
             return node;
@@ -116,10 +116,10 @@ node_t* node_index_forward(node_t* restrict head, const size_t index)
     return node;
 }
 
-node_t* node_index_backward(node_t* restrict tail, const size_t index, const size_t size)
+lnode_t* lnode_index_backward(lnode_t* restrict tail, const size_t index, const size_t size)
 {
     size_t count = size - 1;
-    node_t* node = tail;
+    lnode_t* node = tail;
     while (node != NULL) {
         if (count-- == index) {
             return node;

@@ -113,7 +113,7 @@ size_t queue_bytes(const queue_t* restrict queue)
 
 size_t queue_size(const queue_t* restrict queue)
 {
-    return queue->rear - queue->front;
+    return queue->rear >= queue->front ? queue->rear - queue->front : queue->capacity - queue->front + queue->rear;
 }
 
 size_t queue_capacity(const queue_t* restrict queue)

@@ -64,15 +64,15 @@ typedef struct map_t {
     size_t (*func)(const void*);
 } map_t;
 
-typedef struct node_t {
+typedef struct lnode_t {
     void* data;
-    struct node_t *next;
-    struct node_t *prev;
-} node_t;
+    struct lnode_t *next;
+    struct lnode_t *prev;
+} lnode_t;
 
 typedef struct list_t {
-    node_t *head;
-    node_t *tail;
+    lnode_t *head;
+    lnode_t *tail;
     size_t bytes;
     size_t size;
 } list_t;
@@ -217,14 +217,14 @@ list_t list_create(const size_t bytes);
 size_t list_size(const list_t* list);
 size_t list_bytes(const list_t* list);
 void* list_index(const list_t* list, const size_t index);
-node_t* list_search_node(const list_t* list, const void* data);
-node_t* list_index_node(const list_t* list, const size_t index);
+lnode_t* list_search_node(const list_t* list, const void* data);
+lnode_t* list_index_node(const list_t* list, const size_t index);
 size_t list_search_index(const list_t* list, const void* data);
 void list_push(list_t* list, const void* data);
 void* list_pop(list_t* list);
-void* list_pop_node(list_t* list, node_t* node);
+void* list_pop_node(list_t* list, lnode_t* node);
 void* list_pop_index(list_t* list, const size_t index);
-void list_remove_node(list_t* list, node_t* node);
+void list_remove_node(list_t* list, lnode_t* node);
 void list_remove_index(list_t* list, const size_t index);
 void list_free(list_t* list);
 
@@ -232,15 +232,15 @@ void list_free(list_t* list);
  -> Doubly Linked Generic Node <- 
 ********************************/
 
-node_t* node_create(void* data);
-void node_push(node_t* head, void* data);
-void* node_pop(node_t* node);
-void node_remove(node_t* node);
-size_t node_count(node_t* head);
-node_t* node_search(node_t* head, const void* data, const size_t bytes);
-size_t node_search_index(node_t* first, const void* data, const size_t bytes);
-node_t* node_index_forward(node_t* head, const size_t index);
-node_t* node_index_backward(node_t* tail, const size_t index, const size_t size);
+lnode_t* lnode_create(void* data);
+void lnode_push(lnode_t* head, void* data);
+void* lnode_pop(lnode_t* node);
+void lnode_remove(lnode_t* node);
+size_t lnode_count(lnode_t* head);
+lnode_t* lnode_search(lnode_t* head, const void* data, const size_t bytes);
+size_t lnode_search_index(lnode_t* first, const void* data, const size_t bytes);
+lnode_t* lnode_index_forward(lnode_t* head, const size_t index);
+lnode_t* lnode_index_backward(lnode_t* tail, const size_t index, const size_t size);
 
 /******************************
  -> Dynamic String Container <- 
