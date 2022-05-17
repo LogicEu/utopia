@@ -27,13 +27,20 @@ string_t string_copy(const string_t* restrict str)
 
 string_t string_wrap(char* restrict str)
 {
-    const size_t len = str ? strlen(str) : 0;
-
     string_t ret;
-    ret.capacity = len + !!str;
-    ret.size = len;
+    ret.size = str ? strlen(str) : 0;
+    ret.capacity = ret.size + !!str;
     ret.data = str;
     return ret;
+}
+
+string_t string_ranged(const char* restrict from, const char* restrict to)
+{
+    string_t str;
+    str.capacity = to - from + 1;
+    str.size = str.capacity - 1;
+    str.data = malloc(str.capacity);
+    return str;
 }
 
 void string_push(string_t* restrict str, const char* restrict buffer)
