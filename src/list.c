@@ -44,17 +44,14 @@ void* list_index(const list_t* restrict list, const size_t index)
 }
 
 void list_push(list_t* restrict list, const void* restrict data)
-{
-    void* new_data = malloc(list->bytes);
-    memcpy(new_data, data, list->bytes);
-    
+{   
     if (list->tail) {
-        list->tail->next = lnode_create(new_data);
+        list->tail->next = lnode_create(data, list->bytes);
         list->tail = list->tail->next;
-    } 
-    
+    }   
+
     else {
-        list->head = lnode_create(new_data);
+        list->head = lnode_create(data, list->bytes);
         list->tail = list->head;
     }
     

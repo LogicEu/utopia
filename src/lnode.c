@@ -6,16 +6,17 @@
  -> Doubly Linked Generic Node <- 
 ********************************/
 
-lnode_t* lnode_create(void* restrict data)
+lnode_t* lnode_create(const void* data, const size_t bytes)
 {
     lnode_t* node = malloc(sizeof(lnode_t));
-    node->data = data;
     node->next = NULL;
     node->prev = NULL;
+    node->data = malloc(bytes);
+    memcpy(node->data, data, bytes);
     return node;
 }
 
-void lnode_push(lnode_t* restrict head, void* restrict data)
+void lnode_push(lnode_t* restrict head, const void* restrict data, const size_t bytes)
 {
     if (!head) {
         return;
@@ -26,7 +27,7 @@ void lnode_push(lnode_t* restrict head, void* restrict data)
         node = node->next;
     }
     
-    node->next = lnode_create(data);
+    node->next = lnode_create(data, bytes);
     node->next->prev = node;
 }
 
