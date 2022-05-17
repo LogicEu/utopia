@@ -40,6 +40,7 @@ string_t string_ranged(const char* restrict from, const char* restrict to)
     str.capacity = to - from + 1;
     str.size = str.capacity - 1;
     str.data = malloc(str.capacity);
+    memcpy(str.data, from, str.capacity);
     return str;
 }
 
