@@ -186,6 +186,7 @@ void table_free(table_t* table);
 
 string_t string_create(const char* data);
 string_t string_copy(const string_t* str);
+string_t string_wrap(char* str);
 void string_push(string_t* str, const char* buffer);
 void string_concat(string_t* str1, const string_t* str2);
 size_t string_capacity(const string_t* str);

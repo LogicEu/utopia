@@ -25,6 +25,17 @@ string_t string_copy(const string_t* restrict str)
     return ret;
 }
 
+string_t string_wrap(char* restrict str)
+{
+    const size_t len = str ? strlen(str) : 0;
+
+    string_t ret;
+    ret.capacity = len + !!str;
+    ret.size = len;
+    ret.data = str;
+    return ret;
+}
+
 void string_push(string_t* restrict str, const char* restrict buffer)
 {
     const size_t len = strlen(buffer);
