@@ -7,7 +7,7 @@ string_t string_create(const char* restrict data)
     const size_t len = data ? strlen(data) : 0;
     
     string_t str;
-    str.capacity = len + !!data;
+    str.capacity = len + !!len;
     str.size = len;
     str.data = str.capacity ? malloc(str.capacity) : NULL;
     memcpy(str.data, data, str.capacity);
@@ -139,6 +139,21 @@ size_t* string_search_all(const string_t* restrict str, const char* restrict sea
         }
     }
     return NULL;
+}
+
+void string_remove_index(string_t* restrict str, const size_t index)
+{
+    if (str->data) {
+        memmove(str->data + index, str->data + index + 1, str->size-- - index);
+    }
+}
+
+void string_remove_range(string_t* restrict str, const size_t from, const size_t to)
+{
+    if (str->data) {
+        memmove(str->data + from, str->data + from + to, str->size - to + 1);
+        str->size -= to - from;
+    }
 }
 
 void string_remove(string_t* restrict str, const char* restrict search)
