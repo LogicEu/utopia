@@ -44,6 +44,24 @@ string_t string_ranged(const char* restrict from, const char* restrict to)
     return str;
 }
 
+string_t string_reserve(const size_t size)
+{
+    string_t str;
+    str.capacity = size;
+    str.size = 0;
+    str.data = str.capacity ? calloc(str.capacity, sizeof(char)) : NULL;
+    return str;
+}
+
+string_t string_empty(void)
+{
+    string_t str;
+    str.capacity = 0;
+    str.size = 0;
+    str.data = NULL;
+    return str;
+}
+
 void string_push(string_t* restrict str, const char* restrict buffer)
 {
     const size_t len = strlen(buffer);
@@ -52,6 +70,18 @@ void string_push(string_t* restrict str, const char* restrict buffer)
         str->data = realloc(str->data, str->capacity);
     }
     memcpy(str->data + str->size, buffer, len + 1);
+    str->size += len;
+}
+
+void string_push_at(string_t* restrict str, const char* restrict buf, const size_t index)
+{
+    const size_t len = strlen(buf);
+    if (str->size + len + 1 >= str->capacity) {
+        str->capacity = str->capacity * 2 + len + 1;
+        str->data = realloc(str->data, str->capacity);
+    }
+    memmove(str->data + index + len, str->data + index, str->size - index - len);
+    memcpy(str->data + index, buf, len + 1);
     str->size += len;
 }
 
@@ -85,7 +115,7 @@ size_t string_search(const string_t* restrict str, const char* restrict search)
     if (str->data) {
         char* find = strstr(str->data, search);
         if (find) {
-            return find - str->data;
+            return find - str->data + 1;
         }
     }
     return 0;
@@ -97,7 +127,7 @@ size_t* string_search_all(const string_t* restrict str, const char* restrict sea
         char* find = str->data;
         size_t index[str->size], count = 0;
         while ((find = strstr(find, search))) {
-            index[count++] = find - str->data;
+            index[count++] = find - str->data + 1;
             ++find;
         }
 
@@ -148,7 +178,10 @@ void string_reverse(string_t* restrict str)
 
 void string_clear(string_t* restrict str)
 {
-    str->size = 0;
+    if (str->size) {
+        *str->data = 0;
+        str->size = 0;
+    }
 }
 
 void string_free(string_t* restrict str)
