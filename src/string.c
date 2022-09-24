@@ -151,7 +151,7 @@ void string_remove_index(string_t* restrict str, const size_t index)
 void string_remove_range(string_t* restrict str, const size_t from, const size_t to)
 {
     if (str->data) {
-        memmove(str->data + from, str->data + from + to, str->size - to + 1);
+        memmove(str->data + from, str->data + to, str->size - to + 1);
         str->size -= to - from;
     }
 }
