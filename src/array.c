@@ -101,8 +101,10 @@ void array_remove(array_t* restrict array, const size_t index)
 
 void array_remove_block(array_t* restrict array, const size_t start, const size_t end)
 {
-    char* ptr = _array_index(array, start);
-    memmove(ptr, ptr + array->bytes * (end - start), (--array->size - end) * array->bytes);
+    char* p = _array_index(array, start);
+    size_t size = end - start;
+    memmove(p, p + size * array->bytes, (array->size - end) * array->bytes);
+    array->size -= size;
 }
 
 void* array_data(const array_t* restrict array)
