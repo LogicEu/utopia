@@ -119,6 +119,8 @@ array_t array_move(array_t* array);
 void array_push(array_t* array, const void* data);
 void array_push_vargs(array_t* array, const size_t argc, ...);
 void array_push_block(array_t* array, const void* data, const size_t count);
+void array_push_block_at(array_t* array, const void* data, 
+                        const size_t count, const size_t index);
 void array_remove(array_t* array, const size_t index);
 void array_remove_block(array_t* array, const size_t start, const size_t end);
 void* array_data(const array_t* array);

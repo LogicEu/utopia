@@ -76,10 +76,23 @@ void array_push(array_t* restrict array, const void* restrict data)
 void array_push_block(array_t* array, const void* data, const size_t count)
 {
     while (array->size + count > array->capacity) {
-        array->capacity = array->capacity * 2 + !array->capacity;
+        array->capacity += count + 1;
         array->data = realloc(array->data, array->capacity * array->bytes);
     }
     memcpy(_array_index(array, array->size), data, count * array->bytes);
+    array->size += count;
+}
+
+void array_push_block_at(array_t* restrict array, const void* restrict data, 
+                        const size_t count, const size_t index)
+{
+    if (array->size + count >= array->capacity) {
+        array->capacity += count + 1;
+        array->data = realloc(array->data, array->capacity * array->bytes);
+    }
+    char* ptr = _array_index(array, index);
+    memcpy(ptr + count * array->bytes, ptr, (array->size - index) * array->bytes);
+    memcpy(ptr, data, count * array->bytes);
     array->size += count;
 }
 

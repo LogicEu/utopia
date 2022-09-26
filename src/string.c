@@ -80,8 +80,8 @@ void string_push_at(string_t* restrict str, const char* restrict buf, const size
         str->capacity = str->capacity * 2 + len + 1;
         str->data = realloc(str->data, str->capacity);
     }
-    memmove(str->data + index + len, str->data + index, str->size - index - len);
-    memcpy(str->data + index, buf, len + 1);
+    memmove(str->data + index + len, str->data + index, str->size - index + 1);
+    memcpy(str->data + index, buf, len);
     str->size += len;
 }
 
