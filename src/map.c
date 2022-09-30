@@ -147,30 +147,28 @@ void map_remove(map_t* restrict map, const void* restrict key)
 {
     if (map->mod) {
 
-        const size_t hash = map->func(key);
-        const size_t hash_mod = hash % map->mod;
-
-        bucket_t bucket = map->indices[hash_mod];      
         size_t search = 0;
+        const size_t hash = map->func(key);
+        bucket_t bucket = map->indices[hash % map->mod];      
 
         const size_t size = bucket_size(bucket) + BUCKET_DATA_INDEX;
         for (size_t i = BUCKET_DATA_INDEX; i < size; ++i) {
             void* k = _map_key_at(map, bucket[i]);
             if (hash == map->func(k)) {
-                search = i - BUCKET_DATA_INDEX + 1;
+                search = i;
                 break;
             }
         }
-
+        
         if (search) {
-            const index_t find = bucket[search - 1];
+            const index_t find = bucket[search];
             
             char* key = _map_key_at(map, find);
             char* val = _map_value_at(map, find);
             memmove(key, key + map->key_bytes, (map->size - find - 1) * map->key_bytes);
             memmove(val, val + map->value_bytes, (map->size - find - 1) * map->value_bytes);
             
-            bucket_remove(bucket, search - 1);
+            bucket_remove(bucket, search);
             buckets_reindex(map->indices, map->mod, find);
             --map->size;
         }

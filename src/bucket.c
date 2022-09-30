@@ -44,11 +44,9 @@ bucket_t bucket_push(bucket_t restrict bucket, const index_t index)
 
 void bucket_remove(bucket_t restrict bucket, const size_t index)
 {
-    const size_t size = bucket_size(bucket);
-
+    const size_t size = bucket_size(bucket) + BUCKET_DATA_INDEX;
     index_t* ptr = bucket + index;
     memmove(ptr, ptr + 1, (size - index - 1) * sizeof(index_t));
-
     bucket[BUCKET_SIZE_INDEX] = size - 1;
 }
 
