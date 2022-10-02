@@ -107,12 +107,6 @@ index_t* hash_search_all(const hash_t* table, const void* data)
     return found;
 }
 
-static void hash_remove_data(hash_t* restrict table, const size_t index)
-{
-    char* ptr = _array_index(table, index);
-    memmove(ptr, ptr + table->bytes, (--table->size - index) * table->bytes);
-}
-
 void hash_resize(hash_t* restrict table, const size_t new_size)
 {
     const size_t size = table->size;
@@ -138,25 +132,24 @@ void hash_remove(hash_t* restrict table, const void* restrict data)
 {
     if (table->mod) {
 
-        const size_t hash = table->func(data);
-        const size_t hash_mod = hash % table->mod;
-
-        bucket_t bucket = table->indices[hash_mod];      
         size_t search = 0;
+        const size_t hash = table->func(data);
+        bucket_t bucket = table->indices[hash % table->mod];
 
         const size_t size = bucket_size(bucket) + BUCKET_DATA_INDEX;
         for (size_t i = BUCKET_DATA_INDEX; i < size; ++i) {
             void* k = _array_index(table, bucket[i]);
             if (hash == table->func(k)) {
-                search = i - BUCKET_DATA_INDEX + 1;
+                search = i;
                 break;
             }
         }
 
         if (search) {
-            const index_t find = bucket[search - 1];
-            hash_remove_data(table, find);
-            bucket_remove(bucket, search - 1);
+            const index_t find = bucket[search];
+            char* ptr = _array_index(table, find);
+            memmove(ptr, ptr + table->bytes, (--table->size - find) * table->bytes);
+            bucket_remove(bucket, search);
             buckets_reindex(table->indices, table->mod, find);
         }
     }
