@@ -12,18 +12,22 @@ flags=(
     -I.
 )
 
+comp() {
+    echo "$@" && $@
+}
+
 shared() {
     if echo "$OSTYPE" | grep -q "darwin"; then
-        $cc ${flags[*]} -mmacos-version-min=10.10 -dynamiclib $src -o $name.dylib
+        comp $cc ${flags[*]} -dynamiclib $src -o $name.dylib
     elif echo "$OSTYPE" | grep -q "linux"; then
-        $cc -shared ${flags[*]} -fPIC $src -o $name.so 
+        comp $cc -shared ${flags[*]} -fPIC $src -o $name.so 
     else
         echo "This OS is not supported by this shell script yet..." && exit
     fi
 }
 
 static() {
-    $cc ${flags[*]} $arg ${inc[*]} -c $src && ar -cr $name.a *.o && rm *.o
+    comp $cc ${flags[*]} $arg ${inc[*]} -c $src && ar -cr $name.a *.o && rm *.o
 }
 
 cleanf() {

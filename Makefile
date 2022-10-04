@@ -13,13 +13,12 @@ OS=$(shell uname -s)
 ifeq ($(OS),Darwin)
 	OSFLAGS=-dynamiclib
 	LIB=$(NAME).dylib
-	OSARG=-mmacos-version-min=10.10
 else
 	OSFLAGS=-shared -fPIC
 	LIB=$(NAME).so
 endif
 
-CFLAGS=$(STD) $(WFLAGS) $(OPT) $(IDIR) $(OSARG)
+CFLAGS=$(STD) $(WFLAGS) $(OPT) $(IDIR)
 
 $(NAME).a: $(SRC)
 	$(CC) $(CFLAGS) -c $(SRC) && ar -cr $(NAME).a *.o && rm *.o
