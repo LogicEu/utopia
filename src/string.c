@@ -144,7 +144,8 @@ size_t* string_search_all(const string_t* restrict str, const char* restrict sea
 void string_remove_index(string_t* restrict str, const size_t index)
 {
     if (str->data) {
-        memmove(str->data + index, str->data + index + 1, str->size-- - index);
+        memmove(str->data + index, str->data + index + 1, str->size - index);
+        str->data[--str->size] = 0;
     }
 }
 
@@ -153,6 +154,7 @@ void string_remove_range(string_t* restrict str, const size_t from, const size_t
     if (str->data) {
         memmove(str->data + from, str->data + to, str->size - to + 1);
         str->size -= to - from;
+        str->data[str->size] = 0;
     }
 }
 
@@ -164,6 +166,7 @@ void string_remove(string_t* restrict str, const char* restrict search)
         if (find) {
             memmove(find, find + len, (find - str->data) - len);
             str->size -= len;
+            str->data[str->size] = 0;
         }
     }
 }
@@ -176,6 +179,7 @@ void string_remove_all(string_t* restrict str, const char* restrict search)
         while ((find = strstr(find, search))) {
             memmove(find, find + len, (find - str->data) - len);
             str->size -= len;
+            str->data[str->size] = 0;
             ++find;
         }
     }
@@ -183,18 +187,18 @@ void string_remove_all(string_t* restrict str, const char* restrict search)
 
 void string_reverse(string_t* restrict str)
 {
-    const size_t size = str->size;
-    char buff[size + 1];
-    for (size_t i = 0; i < size; ++i) {
-        buff[size - i] = str->data[i];
+    char c;
+    for (size_t i = 0, j = str->size - 1; i < j; ++i, --j) {
+        c = str->data[i];
+        str->data[i] = str->data[j];
+        str->data[j] = c;
     }
-    memcpy(str->data, buff, size);
 }
 
 void string_clear(string_t* restrict str)
 {
-    if (str->size) {
-        *str->data = 0;
+    if (str->data) {
+        str->data[0] = 0;
         str->size = 0;
     }
 }
