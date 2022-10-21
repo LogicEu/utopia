@@ -64,35 +64,41 @@ string_t string_empty(void)
 
 void string_push(string_t* restrict str, const char* restrict buffer)
 {
-    const size_t len = strlen(buffer);
-    if (str->size + len + 1 >= str->capacity) {
-        str->capacity = str->capacity * 2 + len + 1;
-        str->data = realloc(str->data, str->capacity);
+    if (buffer) {
+        const size_t len = strlen(buffer);
+        if (str->size + len + 1 >= str->capacity) {
+            str->capacity = str->capacity * 2 + len + 1;
+            str->data = realloc(str->data, str->capacity);
+        }
+        memcpy(str->data + str->size, buffer, len + 1);
+        str->size += len;
     }
-    memcpy(str->data + str->size, buffer, len + 1);
-    str->size += len;
 }
 
 void string_push_at(string_t* restrict str, const char* restrict buf, const size_t index)
 {
-    const size_t len = strlen(buf);
-    if (str->size + len + 1 >= str->capacity) {
-        str->capacity = str->capacity * 2 + len + 1;
-        str->data = realloc(str->data, str->capacity);
+    if (buf) {
+        const size_t len = strlen(buf);
+        if (str->size + len + 1 >= str->capacity) {
+            str->capacity = str->capacity * 2 + len + 1;
+            str->data = realloc(str->data, str->capacity);
+        }
+        memmove(str->data + index + len, str->data + index, str->size - index + 1);
+        memcpy(str->data + index, buf, len);
+        str->size += len;
     }
-    memmove(str->data + index + len, str->data + index, str->size - index + 1);
-    memcpy(str->data + index, buf, len);
-    str->size += len;
 }
 
 void string_concat(string_t* restrict str1, const string_t* restrict str2)
 {
-    if (str1->size + str2->size + 1 >= str1->capacity) {
-        str1->capacity = str1->capacity * 2 + str2->size + 1;
-        str1->data = realloc(str1->data, str1->capacity);
+    if (str2->data) {
+        if (str1->size + str2->size + 1 >= str1->capacity) {
+            str1->capacity = str1->capacity * 2 + str2->size + 1;
+            str1->data = realloc(str1->data, str1->capacity);
+        }
+        memcpy(str1->data + str1->size, str2->data, str2->size + 1);
+        str1->size += str2->size;
     }
-    memcpy(str1->data + str1->size, str2->data, str2->size + 1);
-    str1->size += str2->size;
 }
 
 size_t string_capacity(const string_t* restrict str)
