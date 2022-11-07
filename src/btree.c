@@ -1,6 +1,6 @@
 #include <utopia.h>
-#include <stdlib.h>
-#include <string.h>
+#include USTDLIB_H
+#include USTRING_H
 
 btree_t btree_create(const size_t bytes)
 {

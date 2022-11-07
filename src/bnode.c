@@ -1,6 +1,6 @@
 #include <utopia.h>
-#include <stdlib.h>
-#include <string.h>
+#include USTDLIB_H
+#include USTRING_H
 
 bnode_t* bnode_create(const void* data, const size_t bytes)
 {

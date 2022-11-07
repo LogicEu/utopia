@@ -1,6 +1,6 @@
-#include <stdlib.h>
-#include <string.h>
 #include "bucket.h"
+#include USTDLIB_H
+#include USTRING_H
 
 size_t bucket_size(const bucket_t restrict bucket)
 {

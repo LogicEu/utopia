@@ -1,7 +1,7 @@
 #include <utopia.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
+#include USTDLIB_H
+#include USTRING_H
+#include USTDARG_H
 
 /***************************
  -> Dynamic Generic Array <- 

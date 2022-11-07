@@ -1,6 +1,6 @@
 #include <utopia.h>
-#include <stdlib.h>
-#include <string.h>
+#include USTDLIB_H
+#include USTRING_H
 
 /*************************
  -> Generic Queue Array <- 

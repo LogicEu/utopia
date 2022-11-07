@@ -1,6 +1,6 @@
 #include <utopia.h>
-#include <stdlib.h>
-#include <string.h>
+#include USTDLIB_H
+#include USTRING_H
 
 string_t string_create(const char* restrict data)
 {
