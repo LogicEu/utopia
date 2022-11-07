@@ -16,7 +16,7 @@ lnode_t* lnode_create(const void* data, const size_t bytes)
     return node;
 }
 
-void lnode_push(lnode_t* restrict head, const void* restrict data, const size_t bytes)
+void lnode_push(lnode_t*head, const void*data, const size_t bytes)
 {
     if (!head) {
         return;
@@ -31,7 +31,7 @@ void lnode_push(lnode_t* restrict head, const void* restrict data, const size_t 
     node->next->prev = node;
 }
 
-void* lnode_pop(lnode_t* restrict node)
+void* lnode_pop(lnode_t*node)
 {
     lnode_t* next = node->next;
     lnode_t* prev = node->prev;
@@ -50,7 +50,7 @@ void* lnode_pop(lnode_t* restrict node)
     return ret;
 }
 
-void lnode_remove(lnode_t* restrict node)
+void lnode_remove(lnode_t*node)
 {
     lnode_t* next = node->next;
     lnode_t* prev = node->prev;
@@ -67,7 +67,7 @@ void lnode_remove(lnode_t* restrict node)
     free(node);
 }
 
-size_t lnode_count(lnode_t* restrict first)
+size_t lnode_count(lnode_t*first)
 {
     size_t count = 0;
     lnode_t* node = first;
@@ -78,7 +78,7 @@ size_t lnode_count(lnode_t* restrict first)
     return count;
 }
 
-lnode_t* lnode_search(lnode_t* restrict head, const void* restrict data, const size_t bytes)
+lnode_t* lnode_search(lnode_t*head, const void*data, const size_t bytes)
 {
     lnode_t* node = head;
     while (node != NULL) {
@@ -90,7 +90,7 @@ lnode_t* lnode_search(lnode_t* restrict head, const void* restrict data, const s
     return NULL;
 }
 
-size_t lnode_search_index(lnode_t* restrict head, const void* restrict data, const size_t bytes)
+size_t lnode_search_index(lnode_t*head, const void*data, const size_t bytes)
 {
     size_t count = 0;
     lnode_t* node = head;
@@ -104,7 +104,7 @@ size_t lnode_search_index(lnode_t* restrict head, const void* restrict data, con
     return 0;
 }
 
-lnode_t* lnode_index_forward(lnode_t* restrict head, const size_t index)
+lnode_t* lnode_index_forward(lnode_t*head, const size_t index)
 {
     size_t count = 0;
     lnode_t* node = head;
@@ -117,7 +117,7 @@ lnode_t* lnode_index_forward(lnode_t* restrict head, const size_t index)
     return node;
 }
 
-lnode_t* lnode_index_backward(lnode_t* restrict tail, const size_t index, const size_t size)
+lnode_t* lnode_index_backward(lnode_t*tail, const size_t index, const size_t size)
 {
     size_t count = size - 1;
     lnode_t* node = tail;

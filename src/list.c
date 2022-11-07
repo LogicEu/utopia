@@ -16,17 +16,17 @@ list_t list_create(const size_t bytes)
     return list;
 }
 
-size_t list_size(const list_t* restrict list)
+size_t list_size(const list_t*list)
 {
     return list->size;
 }
 
-size_t list_bytes(const list_t* restrict list)
+size_t list_bytes(const list_t*list)
 {
     return list->bytes;
 }
 
-lnode_t* list_index_node(const list_t* restrict list, const size_t index)
+lnode_t* list_index_node(const list_t*list, const size_t index)
 {
     if (index <= list->size / 2) {
         return lnode_index_forward(list->head, index);
@@ -34,7 +34,7 @@ lnode_t* list_index_node(const list_t* restrict list, const size_t index)
     else return lnode_index_backward(list->tail, index, list->size);
 }
 
-void* list_index(const list_t* restrict list, const size_t index)
+void* list_index(const list_t*list, const size_t index)
 {
     lnode_t* node = list_index_node(list, index);
     if (!node) {
@@ -43,7 +43,7 @@ void* list_index(const list_t* restrict list, const size_t index)
     else return node->data;
 }
 
-void list_push(list_t* restrict list, const void* restrict data)
+void list_push(list_t*list, const void*data)
 {   
     if (list->tail) {
         list->tail->next = lnode_create(data, list->bytes);
@@ -63,22 +63,22 @@ void* list_pop(list_t* list)
     return list_pop_node(list, list->tail);
 }
 
-lnode_t* list_search_node(const list_t* restrict list, const void* data)
+lnode_t* list_search_node(const list_t*list, const void* data)
 {
     return lnode_search(list->head, data, list->bytes);
 }
 
-size_t list_search_index(const list_t* restrict list, const void* data)
+size_t list_search_index(const list_t*list, const void* data)
 {
     return lnode_search_index(list->head, data, list->bytes);
 }
 
-void* list_pop_index(list_t* restrict list, const size_t index)
+void* list_pop_index(list_t*list, const size_t index)
 {
     return list_pop_node(list, list_index_node(list, index));
 }
 
-void* list_pop_node(list_t* restrict list, lnode_t* restrict node)
+void* list_pop_node(list_t*list, lnode_t*node)
 {
     if (node == list->head) {
         list->head = node->next;
@@ -94,7 +94,7 @@ void* list_pop_node(list_t* restrict list, lnode_t* restrict node)
     return ret;
 }
 
-void list_remove_node(list_t* restrict list, lnode_t* restrict node)
+void list_remove_node(list_t*list, lnode_t*node)
 {
     if (node == list->head) {
         list->head = node->next;

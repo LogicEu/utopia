@@ -55,7 +55,7 @@ void* map_value_at(const map_t* map, const size_t index)
     return _map_value_at(map, index);
 }
 
-size_t map_size(const map_t* restrict map)
+size_t map_size(const map_t*map)
 {
     return map->size;
 }
@@ -74,11 +74,12 @@ index_t map_search(const map_t* map, const void* data)
 {
     if (map->mod) {
     
+        size_t i;
         const size_t hash = map->func(data);
         bucket_t bucket = map->indices[hash % map->mod];
     
         const size_t size = bucket_size(bucket) + BUCKET_DATA_INDEX;
-        for (size_t i = BUCKET_DATA_INDEX; i < size; ++i) {
+        for (i = BUCKET_DATA_INDEX; i < size; ++i) {
             void* k = _map_key_at(map, bucket[i]);
             if (hash == map->func(k)) {
                 return bucket[i] + 1;
@@ -89,20 +90,20 @@ index_t map_search(const map_t* map, const void* data)
     return 0;
 }
 
-index_t* map_search_all(const map_t* restrict map, const void* restrict key)
+index_t* map_search_all(const map_t*map, const void*key)
 {
     index_t* found = NULL;
     
     if (map->mod) {
 
+        size_t i, count = 0;
         const size_t hash = map->func(key);
         bucket_t bucket = map->indices[hash % map->mod];
 
         const size_t size = bucket_size(bucket) + BUCKET_DATA_INDEX;
         index_t indices[size - BUCKET_DATA_INDEX];
-        size_t count = 0;
 
-        for (size_t i = BUCKET_DATA_INDEX; i < size; ++i) {
+        for (i = BUCKET_DATA_INDEX; i < size; ++i) {
             void* k = _map_key_at(map, bucket[i]);
             if (hash == map->func(k)) {
                 indices[count++] = bucket[i] + 1;
@@ -120,8 +121,9 @@ index_t* map_search_all(const map_t* restrict map, const void* restrict key)
     return found;
 }
 
-void map_resize(map_t* restrict map, const size_t new_size)
+void map_resize(map_t*map, const size_t new_size)
 {
+    size_t i;
     const size_t size = map->size;
     const size_t bytes = map->key_bytes;
 
@@ -136,22 +138,22 @@ void map_resize(map_t* restrict map, const size_t new_size)
     memset(map->indices, 0, map->mod * sizeof(bucket_t));
     
     const char* key = map->keys;
-    for (size_t i = 0; i < size; ++i, key += bytes) {
+    for (i = 0; i < size; ++i, key += bytes) {
         const size_t hash_mod = map->func(key) % map->mod;
         map->indices[hash_mod] = bucket_push(map->indices[hash_mod], i);
     }
 }
 
-void map_remove(map_t* restrict map, const void* restrict key)
+void map_remove(map_t*map, const void*key)
 {
     if (map->mod) {
 
-        size_t search = 0;
+        size_t i, search = 0;
         const size_t hash = map->func(key);
         bucket_t bucket = map->indices[hash % map->mod];      
 
         const size_t size = bucket_size(bucket) + BUCKET_DATA_INDEX;
-        for (size_t i = BUCKET_DATA_INDEX; i < size; ++i) {
+        for (i = BUCKET_DATA_INDEX; i < size; ++i) {
             void* k = _map_key_at(map, bucket[i]);
             if (hash == map->func(k)) {
                 search = i;
@@ -174,7 +176,7 @@ void map_remove(map_t* restrict map, const void* restrict key)
     }
 }
 
-void map_push(map_t* restrict map, const void* restrict key, const void* restrict value)
+void map_push(map_t*map, const void*key, const void*value)
 {
     if (map->size == map->mod) {
         map_resize(map, map->mod * 2);
@@ -188,7 +190,7 @@ void map_push(map_t* restrict map, const void* restrict key, const void* restric
     ++map->size;
 }
 
-size_t map_push_if(map_t* restrict map, const void* restrict key, const void* restrict value)
+size_t map_push_if(map_t*map, const void*key, const void*value)
 {
     const size_t index = map_search(map, key);
     if (index) {
@@ -199,7 +201,7 @@ size_t map_push_if(map_t* restrict map, const void* restrict key, const void* re
     return 0;
 }
 
-void map_free(map_t* restrict map)
+void map_free(map_t*map)
 {
     if (map->indices) {
         buckets_free(map->indices, map->mod);

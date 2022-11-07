@@ -5,7 +5,7 @@ src=src/*.c
 name=libutopia
 
 flags=(
-    -std=c99
+    -std=c89
     -Wall
     -Wextra
     -O2

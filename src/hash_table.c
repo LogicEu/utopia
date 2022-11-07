@@ -61,11 +61,12 @@ index_t hash_search(const hash_t* table, const void* data)
 {
     if (table->mod) {
     
+        size_t i;
         const size_t hash = table->func(data);
         bucket_t bucket = table->indices[hash % table->mod];
     
         const size_t size = bucket_size(bucket) + BUCKET_DATA_INDEX;
-        for (size_t i = BUCKET_DATA_INDEX; i < size; ++i) {
+        for (i = BUCKET_DATA_INDEX; i < size; ++i) {
             void* k = _array_index(table, bucket[i]);
             if (hash == table->func(k)) {
                 return bucket[i] + 1;
@@ -82,14 +83,14 @@ index_t* hash_search_all(const hash_t* table, const void* data)
     
     if (table->mod) {
 
+        size_t i, count = 0;
         const size_t hash = table->func(data);
         bucket_t bucket = table->indices[hash % table->mod];
 
         const size_t size = bucket_size(bucket) + BUCKET_DATA_INDEX;
         index_t indices[size - BUCKET_DATA_INDEX];
-        size_t count = 0;
 
-        for (size_t i = BUCKET_DATA_INDEX; i < size; ++i) {
+        for (i = BUCKET_DATA_INDEX; i < size; ++i) {
             void* k = _array_index(table, bucket[i]);
             if (hash == table->func(k)) {
                 indices[count++] = bucket[i] + 1;
@@ -107,8 +108,9 @@ index_t* hash_search_all(const hash_t* table, const void* data)
     return found;
 }
 
-void hash_resize(hash_t* restrict table, const size_t new_size)
+void hash_resize(hash_t*table, const size_t new_size)
 {
+    size_t i;
     const size_t size = table->size;
     const size_t bytes = table->bytes;
 
@@ -122,22 +124,22 @@ void hash_resize(hash_t* restrict table, const size_t new_size)
     memset(table->indices, 0, table->mod * sizeof(bucket_t));
     
     const char* key = table->data;
-    for (size_t i = 0; i < size; ++i, key += bytes) {
+    for (i = 0; i < size; ++i, key += bytes) {
         const size_t hash_mod = table->func(key) % table->mod;
         table->indices[hash_mod] = bucket_push(table->indices[hash_mod], i);
     }
 }
 
-void hash_remove(hash_t* restrict table, const void* restrict data)
+void hash_remove(hash_t*table, const void*data)
 {
     if (table->mod) {
 
-        size_t search = 0;
+        size_t i, search = 0;
         const size_t hash = table->func(data);
         bucket_t bucket = table->indices[hash % table->mod];
 
         const size_t size = bucket_size(bucket) + BUCKET_DATA_INDEX;
-        for (size_t i = BUCKET_DATA_INDEX; i < size; ++i) {
+        for (i = BUCKET_DATA_INDEX; i < size; ++i) {
             void* k = _array_index(table, bucket[i]);
             if (hash == table->func(k)) {
                 search = i;
@@ -155,7 +157,7 @@ void hash_remove(hash_t* restrict table, const void* restrict data)
     }
 }
 
-void hash_push(hash_t* restrict table, const void* restrict data)
+void hash_push(hash_t*table, const void*data)
 {
     if (table->size == table->mod) {
         hash_resize(table, table->mod * 2);
@@ -167,7 +169,7 @@ void hash_push(hash_t* restrict table, const void* restrict data)
     memcpy(_array_index(table, table->size++), data, table->bytes);
 }
 
-index_t hash_push_if(hash_t* restrict table, const void* restrict data)
+index_t hash_push_if(hash_t*table, const void*data)
 {
     const index_t index = hash_search(table, data);
     if (index) {
@@ -178,7 +180,7 @@ index_t hash_push_if(hash_t* restrict table, const void* restrict data)
     return 0;
 }
 
-void hash_free(hash_t* restrict table)
+void hash_free(hash_t*table)
 {
     if (table->indices) {
         buckets_free(table->indices, table->mod);

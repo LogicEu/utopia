@@ -1,6 +1,6 @@
 # utopia makefile
 
-STD=-std=c99
+STD=-std=c89
 WFLAGS=-Wall -Wextra
 OPT=-O2
 IDIR=-I.

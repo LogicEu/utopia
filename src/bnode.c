@@ -12,7 +12,7 @@ bnode_t* bnode_create(const void* data, const size_t bytes)
     return node;
 }
 
-void bnode_connect(bnode_t* restrict parent, const bnode_t* restrict child)
+void bnode_connect(bnode_t*parent, const bnode_t*child)
 {
     if (!parent->left) {
         parent->left = (bnode_t*)(size_t)child;
