@@ -13,7 +13,7 @@ Simple, easy and generic container implementations in C.
 
 ================================== @Eugenio Arteaga A. */
 
-#include <uconf.h>
+#include "uconf.h"
 #include USTDDEF_H
     
 typedef UTOPIA_INDEX_TYPE index_t;
