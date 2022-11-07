@@ -13,11 +13,11 @@ Simple, easy and generic container implementations in C.
 
 ================================== @Eugenio Arteaga A. */
 
+#include <uconf.h>
+#ifdef UTOPIA_STDDEF
 #include <stddef.h>
-
-#define UTOPIA_HASH_SIZE 32
-#define UTOPIA_INDEX_TYPE size_t
-
+#endif
+    
 typedef UTOPIA_INDEX_TYPE index_t;
 typedef index_t* bucket_t;
 
