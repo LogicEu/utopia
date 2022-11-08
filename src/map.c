@@ -45,6 +45,7 @@ map_t map_copy(const map_t* map)
         m.indices = calloc(m.mod, sizeof(bucket_t));
         m.keys = malloc(m.mod * m.key_bytes);
         m.values = malloc(m.mod * m.value_bytes);
+        m.size = 0;
 
         for (i = 0; i < map->size; ++i) {
             map_push(&m, key, val);

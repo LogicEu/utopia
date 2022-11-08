@@ -41,6 +41,7 @@ hash_t hash_copy(const hash_t* table)
 
         t.indices = calloc(t.mod, sizeof(bucket_t));
         t.data = malloc(t.mod * t.bytes);
+        t.size = 0;
 
         for (i = 0; i < table->size; ++i) {
             hash_push(&t, key);
