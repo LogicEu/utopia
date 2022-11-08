@@ -32,6 +32,24 @@ hash_t hash_reserve(const size_t bytes, const size_t reserve)
     return table;
 }
 
+hash_t hash_copy(const hash_t* table)
+{
+    hash_t t = *table;
+    if (t.mod) {
+        size_t i;
+        const char* key = table->data;
+
+        t.indices = calloc(t.mod, sizeof(bucket_t));
+        t.data = malloc(t.mod * t.bytes);
+
+        for (i = 0; i < table->size; ++i) {
+            hash_push(&t, key);
+            key += table->bytes;
+        }
+    }
+    return t;
+}
+
 size_t hash_capacity(const hash_t* table)
 {
     return table->mod;

@@ -212,6 +212,7 @@ void string_free(string_t* str);
 
 hash_t hash_create(const size_t bytes);
 hash_t hash_reserve(const size_t bytes, const size_t reserve);
+hash_t hash_copy(const hash_t* table);
 index_t hash_search(const hash_t* table, const void* data);
 index_t* hash_search_all(const hash_t* table, const void* data);
 void hash_overload(hash_t* hash, size_t (*func)(const void*));
@@ -231,6 +232,7 @@ void hash_free(hash_t* table);
 
 map_t map_create(const size_t key_size, const size_t value_size);
 map_t map_reserve(const size_t key_size, const size_t value_size, const size_t reserve);
+map_t map_copy(const map_t* map);
 index_t map_search(const map_t* map, const void* key);
 index_t* map_search_all(const map_t* map, const void* key);
 void map_overload(map_t* map, size_t (*hash_func)(const void*));

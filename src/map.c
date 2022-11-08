@@ -35,6 +35,26 @@ map_t map_reserve(const size_t key_size, const size_t value_size, const size_t r
     return map;
 }
 
+map_t map_copy(const map_t* map)
+{
+    map_t m = *map;
+    if (m.mod) {
+        size_t i;
+        const char* key = map->keys, *val = map->values;
+
+        m.indices = calloc(m.mod, sizeof(bucket_t));
+        m.keys = malloc(m.mod * m.key_bytes);
+        m.values = malloc(m.mod * m.value_bytes);
+
+        for (i = 0; i < map->size; ++i) {
+            map_push(&m, key, val);
+            key += map->key_bytes;
+            val += map->value_bytes;
+        }
+    }
+    return m;
+}
+
 size_t map_capacity(const map_t* map)
 {
     return map->mod;
