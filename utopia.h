@@ -111,6 +111,7 @@ typedef struct btree_t {
 
 array_t array_create(const size_t bytes);
 array_t array_reserve(const size_t bytes, const size_t reserve);
+array_t array_sized(const size_t bytes, const size_t size);
 array_t array_wrap(void* data, const size_t bytes, const size_t size);
 array_t array_copy(const array_t* array);
 array_t array_move(array_t* array);

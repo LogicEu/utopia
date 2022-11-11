@@ -27,6 +27,16 @@ array_t array_reserve(const size_t bytes, const size_t reserve)
     return array;
 }
 
+array_t array_sized(const size_t bytes, const size_t size)
+{
+    array_t array;
+    array.bytes = bytes + !bytes;
+    array.data = size ? calloc(size, array.bytes) : NULL; 
+    array.capacity = size;
+    array.size = size;
+    return array;
+}
+
 array_t array_copy(const array_t*array)
 {
     array_t ret;
