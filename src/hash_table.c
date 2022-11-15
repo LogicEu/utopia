@@ -8,6 +8,13 @@
  -> Generic Hash Indexed Table <- 
 ********************************/
 
+static void* memdup(const void* src, size_t size)
+{
+    void* dup = malloc(size);
+    memcpy(dup, src, size);
+    return dup;
+}
+
 hash_t hash_create(const size_t bytes)
 {
     hash_t table;
@@ -35,17 +42,18 @@ hash_t hash_reserve(const size_t bytes, const size_t reserve)
 hash_t hash_copy(const hash_t* table)
 {
     hash_t t = *table;
-    if (t.mod) {
-        size_t i;
-        const char* key = table->data;
+    if (table->mod) {
+        size_t i, size;
 
-        t.indices = calloc(t.mod, sizeof(bucket_t));
-        t.data = malloc(t.mod * t.bytes);
-        t.size = 0;
-
-        for (i = 0; i < table->size; ++i) {
-            hash_push(&t, key);
-            key += table->bytes;
+        t.data = memdup(table->data, table->mod * table->bytes);
+        t.indices = memdup(table->indices, table->mod * sizeof(bucket_t));
+        
+        for (i = 0; i < table->mod; ++i) {
+            size = bucket_size(table->indices[i]);
+            if (size) {
+                size += BUCKET_DATA_INDEX;
+                t.indices[i] = memdup(table->indices[i], size * sizeof(index_t));
+            }
         }
     }
     return t;

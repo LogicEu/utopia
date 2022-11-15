@@ -7,6 +7,13 @@
  -> Generic <Key, Value> Hash Map <- 
 ***********************************/
 
+static void* memdup(const void* src, size_t size)
+{
+    void* dup = malloc(size);
+    memcpy(dup, src, size);
+    return dup;
+}
+
 map_t map_create(const size_t key_size, const size_t value_size)
 {
     map_t map;
@@ -38,19 +45,19 @@ map_t map_reserve(const size_t key_size, const size_t value_size, const size_t r
 map_t map_copy(const map_t* map)
 {
     map_t m = *map;
-    if (m.mod) {
-        size_t i;
-        const char* key = map->keys, *val = map->values;
+    if (map->mod) {
+        size_t i, size;
 
-        m.indices = calloc(m.mod, sizeof(bucket_t));
-        m.keys = malloc(m.mod * m.key_bytes);
-        m.values = malloc(m.mod * m.value_bytes);
-        m.size = 0;
-
-        for (i = 0; i < map->size; ++i) {
-            map_push(&m, key, val);
-            key += map->key_bytes;
-            val += map->value_bytes;
+        m.keys = memdup(map->keys, map->mod * map->key_bytes);
+        m.values = memdup(map->values, map->mod * map->value_bytes);
+        m.indices = memdup(map->indices, map->mod * sizeof(bucket_t));
+        
+        for (i = 0; i < map->mod; ++i) {
+            size = bucket_size(map->indices[i]);
+            if (size) {
+                size += BUCKET_DATA_INDEX;
+                m.indices[i] = memdup(map->indices[i], size * sizeof(index_t));
+            }
         }
     }
     return m;
