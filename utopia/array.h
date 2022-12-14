@@ -1,6 +1,10 @@
 #ifndef UTOPIA_ARRAY_H
 #define UTOPIA_ARRAY_H
 
+#ifdef _cplusplus
+extern "C" {
+#endif
+
 #include <utopia/types.h>
 
 typedef struct array {
@@ -43,4 +47,7 @@ void array_set(array_t* array);
 void array_clear(array_t* array);
 void array_free(array_t* array);
 
+#ifdef _cplusplus
+}
+#endif
 #endif /* UTOPIA_ARRAY_H */

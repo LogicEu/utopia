@@ -1,10 +1,6 @@
 #ifndef UTOPIA_UTILS_H
 #define UTOPIA_UTILS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*=======================================================
 
 >>>>>>>>>>>>>>  UTOPIA UTILITY LIBRARY   >>>>>>>>>>>>>>>>
@@ -20,8 +16,6 @@ Simple, easy and generic container implementations in C.
 #include <utopia/table.h>
 #include <utopia/hash.h>
 #include <utopia/map.h>
+#include <utopia/tree.h>
 
-#ifdef __cplusplus
-}
-#endif
 #endif

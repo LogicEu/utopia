@@ -1,6 +1,10 @@
 #ifndef UTOPIA_MAP_H
 #define UTOPIA_MAP_H
 
+#ifdef _cplusplus
+extern "C" {
+#endif
+
 #include <utopia/types.h>
 
 typedef struct map {
@@ -34,4 +38,7 @@ size_t map_push_if(map_t* map, const void* key, const void* value);
 void map_remove(map_t* map, const void* key);
 void map_free(map_t* map);
 
+#ifdef _cplusplus
+}
+#endif
 #endif /* UTOPIA_MAP_H */

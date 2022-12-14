@@ -1,6 +1,10 @@
 #ifndef UTOPIA_QUEUE_H
 #define UTOPIA_QUEUE_H
 
+#ifdef _cplusplus
+extern "C" {
+#endif
+
 #include <utopia/types.h>
 
 typedef struct queue {
@@ -31,4 +35,7 @@ size_t queue_front(const queue_t* queue);
 void queue_clear(queue_t* stack);
 void queue_free(queue_t* queue);
 
+#ifdef _cplusplus
+}
+#endif
 #endif /* UTOPIA_QUEUE_H */

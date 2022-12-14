@@ -1,6 +1,10 @@
 #ifndef UTOPIA_TABLE_H
 #define UTOPIA_TABLE_H
 
+#ifdef _cplusplus
+extern "C" {
+#endif
+
 #include <utopia/types.h>
 #include <utopia/array.h>
 
@@ -31,4 +35,7 @@ size_t table_values_size(const table_t* table);
 size_t table_bytes(const table_t* table);
 void table_free(table_t* table);
 
+#ifdef _cplusplus
+}
+#endif
 #endif /* UTOPIA_TABLE_H */

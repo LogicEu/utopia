@@ -1,6 +1,10 @@
 #ifndef UTOPIA_STRING_H
 #define UTOPIA_STRING_H
 
+#ifdef _cplusplus
+extern "C" {
+#endif
+
 #include <utopia/types.h>
 
 typedef struct string {
@@ -30,4 +34,7 @@ void string_reverse(string_t* str);
 void string_clear(string_t* str);
 void string_free(string_t* str);
 
+#ifdef _cplusplus
+}
+#endif
 #endif /* UTOPIA_STRING_H */

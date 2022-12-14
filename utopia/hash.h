@@ -1,6 +1,10 @@
 #ifndef UTOPIA_HASH_H
 #define UTOPIA_HASH_H
 
+#ifdef _cplusplus
+extern "C" {
+#endif
+
 #include <utopia/types.h>
 
 typedef struct hash {
@@ -29,4 +33,7 @@ size_t hash_push_if(hash_t* table, const void* data);
 void hash_remove(hash_t* table, const void* data);
 void hash_free(hash_t* table);
 
+#ifdef _cplusplus
+}
+#endif
 #endif /* UTOPIA_HASH_H */

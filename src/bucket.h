@@ -1,10 +1,6 @@
 #ifndef UTOPIA_BUCKET_H
 #define UTOPIA_BUCKET_H
 
-#ifdef _cplusplus
-extern "C" {
-#endif
-
 #include <utopia/types.h>
 #include USTDLIB_H
 #include USTRING_H
@@ -84,7 +80,4 @@ ustatic void buckets_free(bucket_t* buckets, const size_t size)
     }
 }
 
-#ifdef _cplusplus
-}
-#endif
 #endif /* UTOPIA_BUCKET_H */

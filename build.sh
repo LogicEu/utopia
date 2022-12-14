@@ -31,6 +31,10 @@ static() {
     comp $cc ${flags[*]} $arg ${inc[*]} -c $src && ar -cr $name.a *.o && rm *.o
 }
 
+cleand() {
+    [ -d $1 ] && rm -r $1 && echo "deleted $1"
+}
+
 cleanf() {
     [ -f $1 ] && rm $1 && echo "deleted $1"
 }
@@ -46,7 +50,7 @@ install() {
     [ "$EUID" -ne 0 ] && echo "Run with sudo to install" && exit
     
     shared && static
-    cp utopia.h /usr/local/include
+    cp -r utopia /usr/local/include/utopia
 
     [ -f $name.a ] && mv $name.a /usr/local/lib
     [ -f $name.so ] && mv $name.so /usr/local/lib
@@ -59,7 +63,7 @@ install() {
 uninstall() {
     [ "$EUID" -ne 0 ] && echo "Run with sudo to uninstall" && exit
 
-    cleanf /usr/local/include/utopia.h
+    cleand /usr/local/include/utopia
     cleanf /usr/local/lib/$name.a
     cleanf /usr/local/lib/$name.so
     cleanf /usr/local/lib/$name.dylib
