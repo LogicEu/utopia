@@ -18,17 +18,20 @@ comp() {
 }
 
 shared() {
+    mkdir -p bin
     if echo "$OSTYPE" | grep -q "darwin"; then
-        comp $cc ${flags[*]} -dynamiclib $src -o $name.dylib
+        comp $cc ${flags[*]} -dynamiclib $src -o bin/$name.dylib
     elif echo "$OSTYPE" | grep -q "linux"; then
-        comp $cc -shared ${flags[*]} -fPIC $src -o $name.so 
+        comp $cc -shared ${flags[*]} -fPIC $src -o bin/$name.so 
     else
         echo "This OS is not supported by this shell script yet..." && exit
     fi
 }
 
 static() {
-    comp $cc ${flags[*]} $arg ${inc[*]} -c $src && ar -cr $name.a *.o && rm *.o
+    mkdir -p tmp
+    mkdir -p bin
+    comp $cc ${flags[*]} $arg ${inc[*]} -c $src && mv *.o tmp && ar -cr bin/$name.a tmp/*.o
 }
 
 cleand() {
@@ -40,21 +43,20 @@ cleanf() {
 }
 
 clean() {
-    cleanf $name.a
-    cleanf $name.so
-    cleanf $name.dylib
+    cleand bin
+    cleand tmp
     return 0
 }
 
 install() {
     [ "$EUID" -ne 0 ] && echo "Run with sudo to install" && exit
     
-    shared && static
+    make && make shared
     cp -r utopia /usr/local/include/utopia
 
-    [ -f $name.a ] && mv $name.a /usr/local/lib
-    [ -f $name.so ] && mv $name.so /usr/local/lib
-    [ -f $name.dylib ] && mv $name.dylib /usr/local/lib
+    [ -f bin/$name.a ] && mv bin/$name.a /usr/local/lib
+    [ -f bin/$name.so ] && mv bin/$name.so /usr/local/lib
+    [ -f bin/$name.dylib ] && mv bin/$name.dylib /usr/local/lib
     
     echo "Successfully installed $name"
     return 0

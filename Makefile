@@ -1,30 +1,53 @@
 # utopia makefile
 
-STD=-std=c89
-WFLAGS=-Wall -Wextra -pedantic
-OPT=-O2
-IDIR=-I.
-CC=gcc
-NAME=libutopia
-SRC=src/*.c
+NAME = libutopia
+
+CC = gcc
+STD = -std=c89
+WFLAGS = -Wall -Wextra -pedantic
+OPT = -O2
+INC = -I.
+
+SRCDIR = src
+TMPDIR = tmp
+BINDIR = bin
+INCDIR = utopia
+
+SRC = $(wildcard $(SRCDIR)/*.c)
+OBJS = $(patsubst $(SRCDIR)/%.c,$(TMPDIR)/%.o,$(SRC))
 
 OS=$(shell uname -s)
-
 ifeq ($(OS),Darwin)
-	OSFLAGS=-dynamiclib
-	LIB=$(NAME).dylib
+	OSFLAGS = -dynamiclib
+	EXT = dylib
 else
-	OSFLAGS=-shared -fPIC
-	LIB=$(NAME).so
+	OSFLAGS = -shared -fPIC
+	EXT = so
 endif
 
-CFLAGS=$(STD) $(WFLAGS) $(OPT) $(IDIR)
+TARGET = $(BINDIR)/$(NAME)
+LIB = $(TARGET).$(EXT)
 
-$(NAME).a: $(SRC)
-	$(CC) $(CFLAGS) -c $(SRC) && ar -cr $(NAME).a *.o && rm *.o
+CFLAGS = $(STD) $(WFLAGS) $(OPT) $(INC)
 
-shared: $(SRC)
-	$(CC) -o $(LIB) $(SRC) $(CFLAGS) $(OSFLAGS)
+$(TARGET).a: $(BINDIR) $(OBJS)
+	ar -cr $@ $(OBJS)
+
+$(TMPDIR)/%.o: $(SRCDIR)/%.c $(INCDIR)/%.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJS): | $(TMPDIR)
+
+$(TMPDIR):
+	mkdir -p $@
+
+$(BINDIR):
+	mkdir -p $@
+
+shared: $(LIB)
+
+$(LIB): $(BINDIR) $(OBJS)
+	$(CC) $(CFLAGS) $(OSFLAGS) -o $@ $(OBJS)
 
 clean: build.sh
 	./$^ $@
