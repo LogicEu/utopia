@@ -1,8 +1,8 @@
-#include <utopia.h>
+#include <utopia/string.h>
 #include USTDLIB_H
 #include USTRING_H
 
-string_t string_create(const char*data)
+string_t string_create(const char* data)
 {
     const size_t len = data ? strlen(data) : 0;
     
@@ -15,7 +15,7 @@ string_t string_create(const char*data)
     return str;
 }
 
-string_t string_copy(const string_t*str)
+string_t string_copy(const string_t* str)
 {
     string_t ret;
     ret.capacity = str->capacity;
@@ -25,7 +25,7 @@ string_t string_copy(const string_t*str)
     return ret;
 }
 
-string_t string_wrap(char*str)
+string_t string_wrap(char* str)
 {
     string_t ret;
     ret.size = str ? strlen(str) : 0;
@@ -34,7 +34,7 @@ string_t string_wrap(char*str)
     return ret;
 }
 
-string_t string_ranged(const char*from, const char*to)
+string_t string_ranged(const char* from, const char* to)
 {
     string_t str;
     str.capacity = to - from + 1;
@@ -62,7 +62,7 @@ string_t string_empty(void)
     return str;
 }
 
-void string_push(string_t*str, const char*buffer)
+void string_push(string_t* str, const char* buffer)
 {
     if (buffer) {
         const size_t len = strlen(buffer);
@@ -75,7 +75,7 @@ void string_push(string_t*str, const char*buffer)
     }
 }
 
-void string_push_at(string_t*str, const char*buf, const size_t index)
+void string_push_at(string_t* str, const char* buf, const size_t index)
 {
     if (buf) {
         const size_t len = strlen(buf);
@@ -89,7 +89,7 @@ void string_push_at(string_t*str, const char*buf, const size_t index)
     }
 }
 
-void string_concat(string_t*str1, const string_t*str2)
+void string_concat(string_t* str1, const string_t* str2)
 {
     if (str2->data) {
         if (str1->size + str2->size + 1 >= str1->capacity) {
@@ -101,22 +101,22 @@ void string_concat(string_t*str1, const string_t*str2)
     }
 }
 
-size_t string_capacity(const string_t*str)
+size_t string_capacity(const string_t* str)
 {
     return str->capacity;
 }
 
-size_t string_size(const string_t*str)
+size_t string_size(const string_t* str)
 {
     return str->size;
 }
 
-char* string_data(const string_t*str)
+char* string_data(const string_t* str)
 {
     return str->data;
 }
 
-size_t string_search(const string_t*str, const char*search)
+size_t string_search(const string_t* str, const char* search)
 {
     if (str->data) {
         char* find = strstr(str->data, search);
@@ -127,27 +127,7 @@ size_t string_search(const string_t*str, const char*search)
     return 0;
 }
 
-size_t* string_search_all(const string_t*str, const char*search)
-{
-    if (str->data) {
-        char* find = str->data;
-        size_t index[str->size], count = 0;
-        while ((find = strstr(find, search))) {
-            index[count++] = find - str->data + 1;
-            ++find;
-        }
-
-        if (count) {
-            size_t* indices = malloc((count + 1) * sizeof(size_t));
-            memcpy(indices, index, count * sizeof(size_t));
-            indices[count] = 0;
-            return indices;
-        }
-    }
-    return NULL;
-}
-
-void string_remove_index(string_t*str, const size_t index)
+void string_remove_index(string_t* str, const size_t index)
 {
     if (str->data) {
         memmove(str->data + index, str->data + index + 1, str->size - index);
@@ -155,7 +135,7 @@ void string_remove_index(string_t*str, const size_t index)
     }
 }
 
-void string_remove_range(string_t*str, const size_t from, const size_t to)
+void string_remove_range(string_t* str, const size_t from, const size_t to)
 {
     if (str->data) {
         memmove(str->data + from, str->data + to, str->size - to + 1);
@@ -164,7 +144,7 @@ void string_remove_range(string_t*str, const size_t from, const size_t to)
     }
 }
 
-void string_remove(string_t*str, const char*search)
+void string_remove(string_t* str, const char* search)
 {
     if (str->data) {
         const size_t len = strlen(search);
@@ -177,7 +157,7 @@ void string_remove(string_t*str, const char*search)
     }
 }
 
-void string_remove_all(string_t*str, const char*search)
+void string_remove_all(string_t* str, const char* search)
 {
     if (str->data) {
         const size_t len = strlen(search);
@@ -191,7 +171,7 @@ void string_remove_all(string_t*str, const char*search)
     }
 }
 
-void string_reverse(string_t*str)
+void string_reverse(string_t* str)
 {
     char c;
     size_t i, j;
@@ -202,7 +182,7 @@ void string_reverse(string_t*str)
     }
 }
 
-void string_clear(string_t*str)
+void string_clear(string_t* str)
 {
     if (str->data) {
         str->data[0] = 0;
@@ -210,7 +190,7 @@ void string_clear(string_t*str)
     }
 }
 
-void string_free(string_t*str)
+void string_free(string_t* str)
 {
     if (str->data) {
         free(str->data);

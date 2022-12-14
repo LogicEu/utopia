@@ -8,6 +8,7 @@ flags=(
     -std=c89
     -Wall
     -Wextra
+    -pedantic
     -O2
     -I.
 )

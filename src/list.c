@@ -1,6 +1,136 @@
-#include <utopia.h>
+#include <utopia/list.h>
 #include USTDLIB_H
 #include USTRING_H
+
+/********************************
+ -> Doubly Linked Generic Node <- 
+********************************/
+
+struct listnode* lnode_create(const void* data, const size_t bytes)
+{
+    struct listnode* node = malloc(sizeof(struct listnode));
+    node->next = NULL;
+    node->prev = NULL;
+    node->data = malloc(bytes);
+    memcpy(node->data, data, bytes);
+    return node;
+}
+
+void lnode_push(struct listnode* head, const void* data, const size_t bytes)
+{
+    struct listnode* node = head;
+
+    if (!node) {
+        return;
+    }
+    
+    while (node->next != NULL) {
+        node = node->next;
+    }
+    
+    node->next = lnode_create(data, bytes);
+    node->next->prev = node;
+}
+
+void* lnode_pop(struct listnode* node)
+{
+    void* ret;
+    struct listnode* next = node->next;
+    struct listnode* prev = node->prev;
+    
+    if (prev) {
+        prev->next = next;
+    }
+
+    if (next) {
+        next->prev = prev;
+    }
+
+    ret = node->data;
+    free(node);
+    
+    return ret;
+}
+
+void lnode_remove(struct listnode* node)
+{
+    struct listnode* next = node->next;
+    struct listnode* prev = node->prev;
+    
+    if (prev) {
+        prev->next = next;
+    }
+
+    if (next) {
+        next->prev = prev;
+    }
+
+    free(node->data);
+    free(node);
+}
+
+size_t lnode_count(struct listnode* first)
+{
+    size_t count = 0;
+    struct listnode* node = first;
+    while (node != NULL) {
+        ++count;
+        node = node->next;
+    }
+    return count;
+}
+
+struct listnode* lnode_search(struct listnode* head, const void* data, const size_t bytes)
+{
+    struct listnode* node = head;
+    while (node != NULL) {
+        if (memcmp(node->data, data, bytes)) {
+            return node;
+        }
+        node = node->next;
+    }
+    return NULL;
+}
+
+size_t lnode_search_index(struct listnode* head, const void* data, const size_t bytes)
+{
+    size_t count = 0;
+    struct listnode* node = head;
+    while (node != NULL) {
+        ++count;
+        if (memcmp(node->data, data, bytes)) {
+            return count;
+        }
+        node = node->next;
+    }
+    return 0;
+}
+
+struct listnode* lnode_index_forward(struct listnode* head, const size_t index)
+{
+    size_t count = 0;
+    struct listnode* node = head;
+    while (node != NULL) {
+        if (count++ == index) {
+            return node;
+        }
+        node = node->next;
+    }
+    return node;
+}
+
+struct listnode* lnode_index_backward(struct listnode* tail, const size_t index, const size_t size)
+{
+    size_t count = size - 1;
+    struct listnode* node = tail;
+    while (node != NULL) {
+        if (count-- == index) {
+            return node;
+        }
+        node = node->prev;
+    }
+    return node;
+}
 
 /********************************
  -> Generic Doubly Linked List <- 
@@ -16,17 +146,17 @@ list_t list_create(const size_t bytes)
     return list;
 }
 
-size_t list_size(const list_t*list)
+size_t list_size(const list_t* list)
 {
     return list->size;
 }
 
-size_t list_bytes(const list_t*list)
+size_t list_bytes(const list_t* list)
 {
     return list->bytes;
 }
 
-lnode_t* list_index_node(const list_t*list, const size_t index)
+struct listnode* list_index_node(const list_t* list, const size_t index)
 {
     if (index <= list->size / 2) {
         return lnode_index_forward(list->head, index);
@@ -34,16 +164,16 @@ lnode_t* list_index_node(const list_t*list, const size_t index)
     else return lnode_index_backward(list->tail, index, list->size);
 }
 
-void* list_index(const list_t*list, const size_t index)
+void* list_index(const list_t* list, const size_t index)
 {
-    lnode_t* node = list_index_node(list, index);
+    struct listnode* node = list_index_node(list, index);
     if (!node) {
         return NULL;
     }
     else return node->data;
 }
 
-void list_push(list_t*list, const void*data)
+void list_push(list_t* list, const void*data)
 {   
     if (list->tail) {
         list->tail->next = lnode_create(data, list->bytes);
@@ -63,23 +193,24 @@ void* list_pop(list_t* list)
     return list_pop_node(list, list->tail);
 }
 
-lnode_t* list_search_node(const list_t*list, const void* data)
+struct listnode* list_search_node(const list_t* list, const void* data)
 {
     return lnode_search(list->head, data, list->bytes);
 }
 
-size_t list_search_index(const list_t*list, const void* data)
+size_t list_search_index(const list_t* list, const void* data)
 {
     return lnode_search_index(list->head, data, list->bytes);
 }
 
-void* list_pop_index(list_t*list, const size_t index)
+void* list_pop_index(list_t* list, const size_t index)
 {
     return list_pop_node(list, list_index_node(list, index));
 }
 
-void* list_pop_node(list_t*list, lnode_t*node)
+void* list_pop_node(list_t* list, struct listnode* node)
 {
+    void* ret;
     if (node == list->head) {
         list->head = node->next;
     }
@@ -88,13 +219,13 @@ void* list_pop_node(list_t*list, lnode_t*node)
         list->tail = node->prev;
     }
     
-    void* ret = lnode_pop(node);
+    ret = lnode_pop(node);
     list->size -= !!ret;
     
     return ret;
 }
 
-void list_remove_node(list_t*list, lnode_t*node)
+void list_remove_node(list_t* list, struct listnode* node)
 {
     if (node == list->head) {
         list->head = node->next;
@@ -110,7 +241,7 @@ void list_remove_node(list_t*list, lnode_t*node)
 
 void list_remove_index(list_t* list, const size_t index)
 {
-    lnode_t* node = list_index_node(list, index);
+    struct listnode* node = list_index_node(list, index);
     if (node) {
         list_remove_node(list, node);
     }
@@ -118,9 +249,9 @@ void list_remove_index(list_t* list, const size_t index)
 
 void list_free(list_t* list)
 {
-    lnode_t* node = list->head;
+    struct listnode* node = list->head;
     while (node) {
-        lnode_t* next = node->next;
+        struct listnode* next = node->next;
         free(node->data);
         free(node);
         node = next;

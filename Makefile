@@ -1,7 +1,7 @@
 # utopia makefile
 
 STD=-std=c89
-WFLAGS=-Wall -Wextra
+WFLAGS=-Wall -Wextra -pedantic
 OPT=-O2
 IDIR=-I.
 CC=gcc

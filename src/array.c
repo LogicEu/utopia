@@ -1,4 +1,4 @@
-#include <utopia.h>
+#include <utopia/array.h>
 #include USTDLIB_H
 #include USTRING_H
 #include USTDARG_H
@@ -37,7 +37,7 @@ array_t array_sized(const size_t bytes, const size_t size)
     return array;
 }
 
-array_t array_copy(const array_t*array)
+array_t array_copy(const array_t* array)
 {
     array_t ret;
     ret.data = malloc(array->capacity * array->bytes);
@@ -49,7 +49,7 @@ array_t array_copy(const array_t*array)
     return ret;
 }
 
-array_t array_move(array_t*array)
+array_t array_move(array_t* array)
 {
     array_t ret;
     ret.data = array->data;
@@ -64,7 +64,7 @@ array_t array_move(array_t*array)
     return ret;
 }
 
-array_t array_wrap(void*data, const size_t bytes, const size_t size)
+array_t array_wrap(void* data, const size_t bytes, const size_t size)
 {
     array_t array;
     array.bytes = bytes + !bytes;
@@ -74,7 +74,7 @@ array_t array_wrap(void*data, const size_t bytes, const size_t size)
     return array;
 }
 
-void array_push(array_t*array, const void*data)
+void array_push(array_t* array, const void* data)
 {
     if (array->size == array->capacity) {
         array->capacity = array->capacity * 2 + !array->capacity;
@@ -93,14 +93,16 @@ void array_push_block(array_t* array, const void* data, const size_t count)
     array->size += count;
 }
 
-void array_push_block_at(array_t*array, const void*data, 
+void array_push_block_at(array_t* array, const void* data, 
                         const size_t count, const size_t index)
 {
+    char* ptr;
     if (array->size + count >= array->capacity) {
         array->capacity += count + 1;
         array->data = realloc(array->data, array->capacity * array->bytes);
     }
-    char* ptr = _array_index(array, index);
+    
+    ptr = _array_index(array, index);
     memcpy(ptr + count * array->bytes, ptr, (array->size - index) * array->bytes);
     memcpy(ptr, data, count * array->bytes);
     array->size += count;
@@ -117,13 +119,13 @@ void array_push_vargs(array_t* array, const size_t argc, ...)
     va_end(args);
 }
 
-void array_remove(array_t*array, const size_t index)
+void array_remove(array_t* array, const size_t index)
 {
     char* ptr = _array_index(array, index);
     memmove(ptr, ptr + array->bytes, (--array->size - index) * array->bytes);
 }
 
-void array_remove_block(array_t*array, const size_t start, const size_t end)
+void array_remove_block(array_t* array, const size_t start, const size_t end)
 {
     char* p = _array_index(array, start);
     size_t size = end - start;
@@ -131,42 +133,42 @@ void array_remove_block(array_t*array, const size_t start, const size_t end)
     array->size -= size;
 }
 
-void* array_data(const array_t*array)
+void* array_data(const array_t* array)
 {
     return array->data;
 }
 
-void* array_peek(const array_t*array)
+void* array_peek(const array_t* array)
 {
     return !array->size ? NULL : _array_index(array, array->size - 1);
 }
 
-void* array_pop(array_t*array)
+void* array_pop(array_t* array)
 {
     return !array->size ? NULL : _array_index(array, --array->size);
 }
 
-void* array_index(const array_t*array, const size_t index)
+void* array_index(const array_t* array, const size_t index)
 {   
     return _array_index(array, index);
 }
 
-size_t array_bytes(const array_t*array)
+size_t array_bytes(const array_t* array)
 {
     return array->bytes;
 }
 
-size_t array_size(const array_t*array)
+size_t array_size(const array_t* array)
 {
     return array->size;
 }
 
-size_t array_capacity(const array_t*array)
+size_t array_capacity(const array_t* array)
 {
     return array->capacity;
 }
 
-size_t array_search(const array_t*array, const void*data)
+size_t array_search(const array_t* array, const void* data)
 {
     size_t i;
     const size_t bytes = array->bytes, count = array->size;
@@ -179,32 +181,26 @@ size_t array_search(const array_t*array, const void*data)
     return 0;
 }
 
-size_t* array_search_all(const array_t*array, const void*data)
+size_t* array_search_all(const array_t* array, const void* data)
 {
+    size_t i, n;
     const size_t bytes = array->bytes, count = array->size;
     const char* ptr = array->data;
-
-    size_t indices[count], i, j = 0;
-
+    
+    array_t search = array_create(sizeof(size_t));
     for (i = 0; i < count; ++i, ptr += bytes) {
         if (!memcmp(ptr, data, bytes)) {
-            indices[j++] = i + 1;
+            n = i + 1;
+            array_push(&search, &n);
         }
     }
 
-    if (!j) {
-        return NULL;
-    }
-
-    const size_t elements = j;
-    size_t* idx = malloc((elements + 1) * sizeof(size_t));
-    memcpy(idx, indices, elements * sizeof(size_t));
-    idx[elements] = 0;
-
-    return idx;
+    n = 0;
+    array_push(&search, &n);
+    return search.data;
 }
 
-size_t array_push_if(array_t*array, const void*data)
+size_t array_push_if(array_t* array, const void* data)
 {
     size_t i;
     const size_t bytes = array->bytes, count = array->size;
@@ -219,7 +215,7 @@ size_t array_push_if(array_t*array, const void*data)
     return 0;
 }
 
-void array_set(array_t*array)
+void array_set(array_t* array)
 {
     size_t i, j;
     const size_t bytes = array->bytes;
@@ -233,7 +229,7 @@ void array_set(array_t*array)
     } 
 }
 
-void array_resize(array_t*array, const size_t size)
+void array_resize(array_t* array, const size_t size)
 {
     array->capacity = (size > array->size) ? size : array->size;
     if (array->capacity) {
@@ -241,13 +237,13 @@ void array_resize(array_t*array, const size_t size)
     }
 }
 
-void array_cut(array_t*array)
+void array_cut(array_t* array)
 {
     array->capacity = array->size + !array->size;
     array->data = realloc(array->data, array->capacity * array->bytes);
 }
 
-void array_restructure(array_t*array, const size_t bytes)
+void array_restructure(array_t* array, const size_t bytes)
 {
     const size_t n = bytes + !bytes;
     array->capacity = (array->capacity * array->bytes) / n;
@@ -255,12 +251,12 @@ void array_restructure(array_t*array, const size_t bytes)
     array->bytes = n;
 }
 
-void array_clear(array_t*array)
+void array_clear(array_t* array)
 {
     array->size = 0;
 }
 
-void array_free(array_t*array)
+void array_free(array_t* array)
 {
     if (array->data) {
         free(array->data);

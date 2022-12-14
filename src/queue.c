@@ -1,4 +1,4 @@
-#include <utopia.h>
+#include <utopia/queue.h>
 #include USTDLIB_H
 #include USTRING_H
 
@@ -28,7 +28,7 @@ queue_t queue_reserve(const size_t bytes, const size_t reserve)
     return queue;
 }
 
-queue_t queue_copy(const queue_t*queue)
+queue_t queue_copy(const queue_t* queue)
 {
     queue_t ret;
     ret.data = malloc(queue->bytes * queue->capacity);
@@ -41,7 +41,7 @@ queue_t queue_copy(const queue_t*queue)
     return ret;
 }
 
-queue_t queue_move(queue_t*queue)
+queue_t queue_move(queue_t* queue)
 {
     queue_t ret;
     ret.data = queue->data;
@@ -58,7 +58,7 @@ queue_t queue_move(queue_t*queue)
     return ret;
 }
 
-void queue_push(queue_t*queue, const void*data)
+void queue_push(queue_t* queue, const void* data)
 {
     const size_t size = queue->rear - queue->front;
 
@@ -67,7 +67,7 @@ void queue_push(queue_t*queue, const void*data)
         queue->data = realloc(queue->data, queue->capacity * queue->bytes);
     }
 
-    memcpy(_array_index(queue, queue->rear), data, queue->bytes);
+    memcpy(_queue_index(queue, queue->rear), data, queue->bytes);
     queue->rear = (queue->rear + 1) % queue->capacity;
 }
 
@@ -84,60 +84,61 @@ void queue_cut(queue_t* queue)
     queue->data = realloc(queue->data, queue->capacity * queue->bytes);
 }
 
-void* queue_pop(queue_t*queue)
+void* queue_pop(queue_t* queue)
 {
+    void* ptr;
     if (queue->rear == queue->front) {
         return NULL;
     }
 
-    void* ptr = _array_index(queue, queue->front);
+    ptr = _queue_index(queue, queue->front);
     queue->front = (queue->front + 1) % queue->capacity;
     
     return ptr;
 }
 
-void* queue_peek(const queue_t*queue)
+void* queue_peek(const queue_t* queue)
 {
-    return queue->rear == queue->front ? NULL : _array_index(queue, queue->front);
+    return queue->rear == queue->front ? NULL : _queue_index(queue, queue->front);
 }
 
-void* queue_index(const queue_t*queue, const size_t index)
+void* queue_index(const queue_t* queue, const size_t index)
 {
-    return _array_index(queue, index);
+    return _queue_index(queue, index);
 }
 
-size_t queue_bytes(const queue_t*queue)
+size_t queue_bytes(const queue_t* queue)
 {
     return queue->bytes;
 }
 
-size_t queue_size(const queue_t*queue)
+size_t queue_size(const queue_t* queue)
 {
     return queue->rear >= queue->front ? queue->rear - queue->front : queue->capacity - queue->front + queue->rear;
 }
 
-size_t queue_capacity(const queue_t*queue)
+size_t queue_capacity(const queue_t* queue)
 {
     return queue->capacity;
 }
 
-size_t queue_rear(const queue_t*queue)
+size_t queue_rear(const queue_t* queue)
 {
     return queue->rear;
 }
 
-size_t queue_front(const queue_t*queue)
+size_t queue_front(const queue_t* queue)
 {
     return queue->front;
 }
 
-void queue_clear(queue_t*queue)
+void queue_clear(queue_t* queue)
 {
     queue->front = 0;
     queue->rear = 0;
 }
 
-void queue_free(queue_t*queue)
+void queue_free(queue_t* queue)
 {
     if (queue->data) {
         free(queue->data);

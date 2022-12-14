@@ -1,4 +1,4 @@
-#include <utopia.h>
+#include <utopia/map.h>
 #include USTDLIB_H
 #include USTRING_H
 #include "bucket.h"
@@ -12,6 +12,17 @@ static void* memdup(const void* src, size_t size)
     void* dup = malloc(size);
     memcpy(dup, src, size);
     return dup;
+}
+
+static size_t hash_cstr(const void* key)
+{
+    int c;
+    size_t hash = 5381;
+    const unsigned char* str = key;
+    while ((c = *str++)) {
+        hash = ((hash << 5) + hash) + c;
+    }
+    return hash;
 }
 
 map_t map_create(const size_t key_size, const size_t value_size)
@@ -83,7 +94,7 @@ void* map_value_at(const map_t* map, const size_t index)
     return _map_value_at(map, index);
 }
 
-size_t map_size(const map_t*map)
+size_t map_size(const map_t* map)
 {
     return map->size;
 }
@@ -118,40 +129,10 @@ index_t map_search(const map_t* map, const void* data)
     return 0;
 }
 
-index_t* map_search_all(const map_t*map, const void*key)
-{
-    index_t* found = NULL;
-    
-    if (map->mod) {
-
-        size_t i, count = 0;
-        const size_t hash = map->func(key);
-        bucket_t bucket = map->indices[hash % map->mod];
-
-        const size_t size = bucket_size(bucket) + BUCKET_DATA_INDEX;
-        index_t indices[size - BUCKET_DATA_INDEX];
-
-        for (i = BUCKET_DATA_INDEX; i < size; ++i) {
-            void* k = _map_key_at(map, bucket[i]);
-            if (hash == map->func(k)) {
-                indices[count++] = bucket[i] + 1;
-            }
-        }
-
-        if (count) {
-            const size_t elements = count;
-            found = malloc((elements + 1) * sizeof(index_t));
-            memcpy(found, indices, elements * sizeof(index_t));
-            found[elements] = 0;
-        }
-    }
-
-    return found;
-}
-
-void map_resize(map_t*map, const size_t new_size)
+void map_resize(map_t* map, const size_t new_size)
 {
     size_t i;
+    const char* key;
     const size_t size = map->size;
     const size_t bytes = map->key_bytes;
 
@@ -165,14 +146,14 @@ void map_resize(map_t*map, const size_t new_size)
     map->indices = realloc(map->indices, map->mod * sizeof(bucket_t));
     memset(map->indices, 0, map->mod * sizeof(bucket_t));
     
-    const char* key = map->keys;
+    key = map->keys;
     for (i = 0; i < size; ++i, key += bytes) {
         const size_t hash_mod = map->func(key) % map->mod;
         map->indices[hash_mod] = bucket_push(map->indices[hash_mod], i);
     }
 }
 
-void map_remove(map_t*map, const void*key)
+void map_remove(map_t* map, const void* key)
 {
     if (map->mod) {
 
@@ -204,21 +185,22 @@ void map_remove(map_t*map, const void*key)
     }
 }
 
-void map_push(map_t*map, const void*key, const void*value)
+void map_push(map_t* map, const void* key, const void* value)
 {
+    size_t hashmod;
     if (map->size == map->mod) {
         map_resize(map, map->mod * 2);
     }
 
-    const size_t hash_mod = map->func(key) % map->mod;
-    map->indices[hash_mod] = bucket_push(map->indices[hash_mod], map->size);
+    hashmod = map->func(key) % map->mod;
+    map->indices[hashmod] = bucket_push(map->indices[hashmod], map->size);
 
     memcpy(_map_key_at(map, map->size), key, map->key_bytes);
     memcpy(_map_value_at(map, map->size), value, map->value_bytes);
     ++map->size;
 }
 
-size_t map_push_if(map_t*map, const void*key, const void*value)
+size_t map_push_if(map_t* map, const void* key, const void* value)
 {
     const size_t index = map_search(map, key);
     if (index) {
@@ -229,7 +211,7 @@ size_t map_push_if(map_t*map, const void*key, const void*value)
     return 0;
 }
 
-void map_free(map_t*map)
+void map_free(map_t* map)
 {
     if (map->indices) {
         buckets_free(map->indices, map->mod);
