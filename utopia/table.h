@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <utopia/types.h>
-#include <utopia/array.h>
+#include <utopia/vector.h>
 
 struct table {
     index_t* indices;
@@ -17,15 +17,15 @@ struct table {
 };
 
 #define _table_index_at(table, i) ((table)->indices[i + 2])
-#define _table_value_at(table, i) (_array_index((table), _table_index_at(table, i)))
+#define _table_value_at(table, i) (_vector_index((table), _table_index_at(table, i)))
 
 struct table table_create(const size_t bytes);
 size_t table_push(struct table* table, const void* data);
 void table_push_index(struct table* table, const index_t index);
 void table_push_data(struct table* table, const void* data);
 void table_remove(struct table* table, const index_t index);
-struct table table_compress(const struct array* buffer);
-struct array table_decompress(const struct table* table);
+struct table table_compress(const struct vector* buffer);
+struct vector table_decompress(const struct table* table);
 void* table_values(const struct table* table);
 void* table_value_at(const struct table* table, const size_t index);
 index_t* table_indices(const struct table* table);

@@ -42,7 +42,7 @@ void table_push_data(struct table* table, const void* data)
         table->capacity = table->capacity * 2 + !table->capacity;
         table->data = realloc(table->data, table->capacity * table->bytes);
     }
-    memcpy(_array_index(table, table->size++), data, table->bytes);
+    memcpy(_vector_index(table, table->size++), data, table->bytes);
 }
 
 size_t table_push(struct table* table, const void* data)
@@ -62,7 +62,7 @@ void table_remove(struct table* table, const index_t index)
     if (table->indices) {
         size_t size;
         index_t* indices, i;
-        char* ptr = _array_index(table, index);
+        char* ptr = _vector_index(table, index);
         memmove(ptr, ptr + table->bytes, (--table->size - index) * table->bytes);
         
         indices = table_indices(table);
@@ -78,7 +78,7 @@ void table_remove(struct table* table, const index_t index)
     }
 }
 
-struct table table_compress(const struct array* buffer)
+struct table table_compress(const struct vector* buffer)
 {   
     size_t i;
     const size_t bsize = buffer->size;
@@ -94,15 +94,15 @@ struct table table_compress(const struct array* buffer)
     return table;
 }
 
-struct array table_decompress(const struct table* table)
+struct vector table_decompress(const struct table* table)
 {
     size_t i;
-    struct array array = array_create(table->bytes);
+    struct vector vector = vector_create(table->bytes);
     const size_t size = bucket_size(table->indices) + BUCKET_DATA_INDEX;
     for (i = BUCKET_DATA_INDEX; i < size; ++i) {
-        array_push(&array, _array_index(table, table->indices[i]));
+        vector_push(&vector, _vector_index(table, table->indices[i]));
     }
-    return array;
+    return vector;
 }
 
 void* table_values(const struct table* table)
