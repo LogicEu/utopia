@@ -13,12 +13,12 @@ struct listnode {
     void* data;
 };
 
-typedef struct list {
+struct list {
     struct listnode *head;
     struct listnode *tail;
     size_t bytes;
     size_t size;
-} list_t;
+};
 
 struct listnode* listnode_create(const void* data, const size_t bytes);
 void listnode_push(struct listnode* head, const void* data, const size_t bytes);
@@ -30,20 +30,20 @@ size_t listnode_search_index(struct listnode* first, const void* data, const siz
 struct listnode* listnode_index_forward(struct listnode* head, const size_t index);
 struct listnode* listnode_index_backward(struct listnode* tail, const size_t index, const size_t size);
 
-list_t list_create(const size_t bytes);
-size_t list_size(const list_t* list);
-size_t list_bytes(const list_t* list);
-void* list_index(const list_t* list, const size_t index);
-struct listnode* list_search_node(const list_t* list, const void* data);
-struct listnode* list_index_node(const list_t* list, const size_t index);
-size_t list_search_index(const list_t* list, const void* data);
-void list_push(list_t* list, const void* data);
-void* list_pop(list_t* list);
-void* list_pop_node(list_t* list, struct listnode* node);
-void* list_pop_index(list_t* list, const size_t index);
-void list_remove_node(list_t* list, struct listnode* node);
-void list_remove_index(list_t* list, const size_t index);
-void list_free(list_t* list);
+struct list list_create(const size_t bytes);
+size_t list_size(const struct list* list);
+size_t list_bytes(const struct list* list);
+void* list_index(const struct list* list, const size_t index);
+struct listnode* list_search_node(const struct list* list, const void* data);
+struct listnode* list_index_node(const struct list* list, const size_t index);
+size_t list_search_index(const struct list* list, const void* data);
+void list_push(struct list* list, const void* data);
+void* list_pop(struct list* list);
+void* list_pop_node(struct list* list, struct listnode* node);
+void* list_pop_index(struct list* list, const size_t index);
+void list_remove_node(struct list* list, struct listnode* node);
+void list_remove_index(struct list* list, const size_t index);
+void list_free(struct list* list);
 
 #ifdef _cplusplus
 }

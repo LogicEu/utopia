@@ -6,9 +6,9 @@
  -> Generic Queue Array <- 
 *************************/
 
-queue_t queue_create(const size_t bytes)
+struct queue queue_create(const size_t bytes)
 {
-    queue_t queue;
+    struct queue queue;
     queue.bytes = bytes + !bytes;
     queue.data = NULL;
     queue.capacity = 0;
@@ -17,9 +17,9 @@ queue_t queue_create(const size_t bytes)
     return queue;
 }
 
-queue_t queue_reserve(const size_t bytes, const size_t reserve)
+struct queue queue_reserve(const size_t bytes, const size_t reserve)
 {
-    queue_t queue;
+    struct queue queue;
     queue.bytes = bytes + !bytes;
     queue.data = reserve ? malloc(queue.bytes * reserve) : NULL;
     queue.capacity = reserve;
@@ -28,9 +28,9 @@ queue_t queue_reserve(const size_t bytes, const size_t reserve)
     return queue;
 }
 
-queue_t queue_copy(const queue_t* queue)
+struct queue queue_copy(const struct queue* queue)
 {
-    queue_t ret;
+    struct queue ret;
     ret.data = malloc(queue->bytes * queue->capacity);
     ret.bytes = queue->bytes;
     ret.capacity = queue->capacity;
@@ -41,9 +41,9 @@ queue_t queue_copy(const queue_t* queue)
     return ret;
 }
 
-queue_t queue_move(queue_t* queue)
+struct queue queue_move(struct queue* queue)
 {
-    queue_t ret;
+    struct queue ret;
     ret.data = queue->data;
     ret.bytes = queue->bytes;
     ret.capacity = queue->capacity;
@@ -58,7 +58,7 @@ queue_t queue_move(queue_t* queue)
     return ret;
 }
 
-void queue_push(queue_t* queue, const void* data)
+void queue_push(struct queue* queue, const void* data)
 {
     const size_t size = queue->rear - queue->front;
 
@@ -71,20 +71,20 @@ void queue_push(queue_t* queue, const void* data)
     queue->rear = (queue->rear + 1) % queue->capacity;
 }
 
-void queue_resize(queue_t* queue, const size_t size)
+void queue_resize(struct queue* queue, const size_t size)
 {
     const size_t qsize = queue->rear - queue->front;
     queue->capacity = (size > qsize) ? size : qsize;
     queue->data = realloc(queue->data, queue->capacity * queue->bytes);
 }
 
-void queue_cut(queue_t* queue)
+void queue_cut(struct queue* queue)
 {
     queue->capacity = queue->rear - queue->front;
     queue->data = realloc(queue->data, queue->capacity * queue->bytes);
 }
 
-void* queue_pop(queue_t* queue)
+void* queue_pop(struct queue* queue)
 {
     void* ptr;
     if (queue->rear == queue->front) {
@@ -97,48 +97,48 @@ void* queue_pop(queue_t* queue)
     return ptr;
 }
 
-void* queue_peek(const queue_t* queue)
+void* queue_peek(const struct queue* queue)
 {
     return queue->rear == queue->front ? NULL : _queue_index(queue, queue->front);
 }
 
-void* queue_index(const queue_t* queue, const size_t index)
+void* queue_index(const struct queue* queue, const size_t index)
 {
     return _queue_index(queue, index);
 }
 
-size_t queue_bytes(const queue_t* queue)
+size_t queue_bytes(const struct queue* queue)
 {
     return queue->bytes;
 }
 
-size_t queue_size(const queue_t* queue)
+size_t queue_size(const struct queue* queue)
 {
     return queue->rear >= queue->front ? queue->rear - queue->front : queue->capacity - queue->front + queue->rear;
 }
 
-size_t queue_capacity(const queue_t* queue)
+size_t queue_capacity(const struct queue* queue)
 {
     return queue->capacity;
 }
 
-size_t queue_rear(const queue_t* queue)
+size_t queue_rear(const struct queue* queue)
 {
     return queue->rear;
 }
 
-size_t queue_front(const queue_t* queue)
+size_t queue_front(const struct queue* queue)
 {
     return queue->front;
 }
 
-void queue_clear(queue_t* queue)
+void queue_clear(struct queue* queue)
 {
     queue->front = 0;
     queue->rear = 0;
 }
 
-void queue_free(queue_t* queue)
+void queue_free(struct queue* queue)
 {
     if (queue->data) {
         free(queue->data);

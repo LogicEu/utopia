@@ -25,9 +25,9 @@ static size_t hash_cstr(const void* key)
     return hash;
 }
 
-map_t map_create(const size_t key_size, const size_t value_size)
+struct map map_create(const size_t key_size, const size_t value_size)
 {
-    map_t map;
+    struct map map;
     map.indices = NULL;
     map.keys = NULL;
     map.values = NULL;
@@ -39,9 +39,9 @@ map_t map_create(const size_t key_size, const size_t value_size)
     return map;
 }
 
-map_t map_reserve(const size_t key_size, const size_t value_size, const size_t reserve)
+struct map map_reserve(const size_t key_size, const size_t value_size, const size_t reserve)
 {
-    map_t map;
+    struct map map;
     map.key_bytes = key_size + !key_size;
     map.value_bytes = value_size + !value_size;
     map.indices = reserve ? calloc(reserve, sizeof(bucket_t)) : NULL;
@@ -53,9 +53,9 @@ map_t map_reserve(const size_t key_size, const size_t value_size, const size_t r
     return map;
 }
 
-map_t map_copy(const map_t* map)
+struct map map_copy(const struct map* map)
 {
-    map_t m = *map;
+    struct map m = *map;
     if (map->mod) {
         size_t i, size;
 
@@ -74,42 +74,42 @@ map_t map_copy(const map_t* map)
     return m;
 }
 
-size_t map_capacity(const map_t* map)
+size_t map_capacity(const struct map* map)
 {
     return map->mod;
 }
 
-void map_overload(map_t* map, size_t (*func)(const void*))
+void map_overload(struct map* map, size_t (*func)(const void*))
 {
     map->func = func;
 }
 
-void* map_key_at(const map_t* map, const size_t index)
+void* map_key_at(const struct map* map, const size_t index)
 {
     return _map_key_at(map, index);
 }
 
-void* map_value_at(const map_t* map, const size_t index)
+void* map_value_at(const struct map* map, const size_t index)
 {
     return _map_value_at(map, index);
 }
 
-size_t map_size(const map_t* map)
+size_t map_size(const struct map* map)
 {
     return map->size;
 }
 
-size_t map_key_bytes(const map_t* map)
+size_t map_key_bytes(const struct map* map)
 {
     return map->key_bytes;
 }
 
-size_t map_value_bytes(const map_t* map)
+size_t map_value_bytes(const struct map* map)
 {
     return map->value_bytes;
 }
 
-index_t map_search(const map_t* map, const void* data)
+index_t map_search(const struct map* map, const void* data)
 {
     if (map->mod) {
     
@@ -129,7 +129,7 @@ index_t map_search(const map_t* map, const void* data)
     return 0;
 }
 
-void map_resize(map_t* map, const size_t new_size)
+void map_resize(struct map* map, const size_t new_size)
 {
     size_t i;
     const char* key;
@@ -153,7 +153,7 @@ void map_resize(map_t* map, const size_t new_size)
     }
 }
 
-void map_remove(map_t* map, const void* key)
+void map_remove(struct map* map, const void* key)
 {
     if (map->mod) {
 
@@ -185,7 +185,7 @@ void map_remove(map_t* map, const void* key)
     }
 }
 
-void map_push(map_t* map, const void* key, const void* value)
+void map_push(struct map* map, const void* key, const void* value)
 {
     size_t hashmod;
     if (map->size == map->mod) {
@@ -200,7 +200,7 @@ void map_push(map_t* map, const void* key, const void* value)
     ++map->size;
 }
 
-size_t map_push_if(map_t* map, const void* key, const void* value)
+size_t map_push_if(struct map* map, const void* key, const void* value)
 {
     const size_t index = map_search(map, key);
     if (index) {
@@ -211,7 +211,7 @@ size_t map_push_if(map_t* map, const void* key, const void* value)
     return 0;
 }
 
-void map_free(map_t* map)
+void map_free(struct map* map)
 {
     if (map->indices) {
         buckets_free(map->indices, map->mod);

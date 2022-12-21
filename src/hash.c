@@ -25,9 +25,9 @@ static size_t hash_cstr(const void* key)
     return hash;
 }
 
-hash_t hash_create(const size_t bytes)
+struct hash hash_create(const size_t bytes)
 {
-    hash_t table;
+    struct hash table;
     table.indices = NULL;
     table.data = NULL;
     table.bytes = bytes + !bytes;
@@ -37,9 +37,9 @@ hash_t hash_create(const size_t bytes)
     return table;
 }
 
-hash_t hash_reserve(const size_t bytes, const size_t reserve)
+struct hash hash_reserve(const size_t bytes, const size_t reserve)
 {
-    hash_t table;
+    struct hash table;
     table.bytes = bytes + !bytes;
     table.indices = reserve ? calloc(reserve, sizeof(bucket_t)) : NULL;
     table.data = reserve ? malloc(reserve * table.bytes) : NULL;
@@ -49,9 +49,9 @@ hash_t hash_reserve(const size_t bytes, const size_t reserve)
     return table;
 }
 
-hash_t hash_copy(const hash_t* table)
+struct hash hash_copy(const struct hash* table)
 {
-    hash_t t = *table;
+    struct hash t = *table;
     if (table->mod) {
         size_t i, size;
 
@@ -69,32 +69,32 @@ hash_t hash_copy(const hash_t* table)
     return t;
 }
 
-size_t hash_capacity(const hash_t* table)
+size_t hash_capacity(const struct hash* table)
 {
     return table->mod;
 }
 
-void hash_overload(hash_t* hash, size_t (*func)(const void*))
+void hash_overload(struct hash* hash, size_t (*func)(const void*))
 {
     hash->func = func;
 }
 
-void* hash_index(const hash_t* table, const size_t index)
+void* hash_index(const struct hash* table, const size_t index)
 {
     return _hash_index(table, index);
 }
 
-size_t hash_size(const hash_t* table)
+size_t hash_size(const struct hash* table)
 {
     return table->size;
 }
 
-size_t hash_bytes(const hash_t* table)
+size_t hash_bytes(const struct hash* table)
 {
     return table->bytes;
 }
 
-index_t hash_search(const hash_t* table, const void* data)
+index_t hash_search(const struct hash* table, const void* data)
 {
     if (table->mod) {
     
@@ -114,7 +114,7 @@ index_t hash_search(const hash_t* table, const void* data)
     return 0;
 }
 
-void hash_resize(hash_t* table, const size_t new_size)
+void hash_resize(struct hash* table, const size_t new_size)
 {
     size_t i;
     const char* key;
@@ -137,7 +137,7 @@ void hash_resize(hash_t* table, const size_t new_size)
     }
 }
 
-void hash_remove(hash_t* table, const void* data)
+void hash_remove(struct hash* table, const void* data)
 {
     if (table->mod) {
 
@@ -164,7 +164,7 @@ void hash_remove(hash_t* table, const void* data)
     }
 }
 
-void hash_push(hash_t* table, const void* data)
+void hash_push(struct hash* table, const void* data)
 {
     size_t hashmod;
     if (table->size == table->mod) {
@@ -177,7 +177,7 @@ void hash_push(hash_t* table, const void* data)
     memcpy(_hash_index(table, table->size++), data, table->bytes);
 }
 
-index_t hash_push_if(hash_t* table, const void* data)
+index_t hash_push_if(struct hash* table, const void* data)
 {
     const index_t index = hash_search(table, data);
     if (index) {
@@ -188,7 +188,7 @@ index_t hash_push_if(hash_t* table, const void* data)
     return 0;
 }
 
-void hash_free(hash_t* table)
+void hash_free(struct hash* table)
 {
     if (table->indices) {
         buckets_free(table->indices, table->mod);

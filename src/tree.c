@@ -85,21 +85,21 @@ int treenode_remove(struct treenode* root, const size_t index)
  -> Generic Tree Container <- 
 ****************************/
 
-tree_t tree_create(const size_t bytes)
+struct tree tree_create(const size_t bytes)
 {
-    tree_t tree;
+    struct tree tree;
     tree.root = NULL;
     tree.bytes = bytes;
     return tree;
 }
 
-void tree_free(tree_t* tree)
+void tree_free(struct tree* tree)
 {
     treenode_free(tree->root);
     tree->root = NULL;
 }
 
-void tree_push_root(tree_t* tree, const void* data)
+void tree_push_root(struct tree* tree, const void* data)
 {
     struct treenode* node = treenode_create(data, tree->bytes);
     if (tree->root) {
@@ -108,7 +108,7 @@ void tree_push_root(tree_t* tree, const void* data)
     tree->root = node;
 }
 
-void tree_push_leave(tree_t* tree, const void* data)
+void tree_push_leave(struct tree* tree, const void* data)
 {
     struct treenode* node = treenode_create(data, tree->bytes);
     if (tree->root) {

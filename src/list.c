@@ -136,9 +136,9 @@ struct listnode* listnode_index_backward(struct listnode* tail, const size_t ind
  -> Generic Doubly Linked List <- 
 ********************************/
 
-list_t list_create(const size_t bytes)
+struct list list_create(const size_t bytes)
 {
-    list_t list;
+    struct list list;
     list.head = NULL;
     list.tail = NULL;
     list.bytes = bytes + !bytes;
@@ -146,17 +146,17 @@ list_t list_create(const size_t bytes)
     return list;
 }
 
-size_t list_size(const list_t* list)
+size_t list_size(const struct list* list)
 {
     return list->size;
 }
 
-size_t list_bytes(const list_t* list)
+size_t list_bytes(const struct list* list)
 {
     return list->bytes;
 }
 
-struct listnode* list_index_node(const list_t* list, const size_t index)
+struct listnode* list_index_node(const struct list* list, const size_t index)
 {
     if (index <= list->size / 2) {
         return listnode_index_forward(list->head, index);
@@ -164,7 +164,7 @@ struct listnode* list_index_node(const list_t* list, const size_t index)
     else return listnode_index_backward(list->tail, index, list->size);
 }
 
-void* list_index(const list_t* list, const size_t index)
+void* list_index(const struct list* list, const size_t index)
 {
     struct listnode* node = list_index_node(list, index);
     if (!node) {
@@ -173,7 +173,7 @@ void* list_index(const list_t* list, const size_t index)
     else return node->data;
 }
 
-void list_push(list_t* list, const void*data)
+void list_push(struct list* list, const void*data)
 {   
     if (list->tail) {
         list->tail->next = listnode_create(data, list->bytes);
@@ -188,27 +188,27 @@ void list_push(list_t* list, const void*data)
     ++list->size;
 }
 
-void* list_pop(list_t* list)
+void* list_pop(struct list* list)
 {
     return list_pop_node(list, list->tail);
 }
 
-struct listnode* list_search_node(const list_t* list, const void* data)
+struct listnode* list_search_node(const struct list* list, const void* data)
 {
     return listnode_search(list->head, data, list->bytes);
 }
 
-size_t list_search_index(const list_t* list, const void* data)
+size_t list_search_index(const struct list* list, const void* data)
 {
     return listnode_search_index(list->head, data, list->bytes);
 }
 
-void* list_pop_index(list_t* list, const size_t index)
+void* list_pop_index(struct list* list, const size_t index)
 {
     return list_pop_node(list, list_index_node(list, index));
 }
 
-void* list_pop_node(list_t* list, struct listnode* node)
+void* list_pop_node(struct list* list, struct listnode* node)
 {
     void* ret;
     if (node == list->head) {
@@ -225,7 +225,7 @@ void* list_pop_node(list_t* list, struct listnode* node)
     return ret;
 }
 
-void list_remove_node(list_t* list, struct listnode* node)
+void list_remove_node(struct list* list, struct listnode* node)
 {
     if (node == list->head) {
         list->head = node->next;
@@ -239,7 +239,7 @@ void list_remove_node(list_t* list, struct listnode* node)
     --list->size;
 }
 
-void list_remove_index(list_t* list, const size_t index)
+void list_remove_index(struct list* list, const size_t index)
 {
     struct listnode* node = list_index_node(list, index);
     if (node) {
@@ -247,7 +247,7 @@ void list_remove_index(list_t* list, const size_t index)
     }
 }
 
-void list_free(list_t* list)
+void list_free(struct list* list)
 {
     struct listnode* node = list->head;
     while (node) {

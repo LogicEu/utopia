@@ -8,32 +8,32 @@ extern "C" {
 #include <utopia/types.h>
 #include <utopia/array.h>
 
-typedef struct table {
+struct table {
     index_t* indices;
     void* data;
     size_t bytes;
     size_t capacity;
     size_t size;
-} table_t;
+};
 
 #define _table_index_at(table, i) ((table)->indices[i + 2])
 #define _table_value_at(table, i) (_array_index((table), _table_index_at(table, i)))
 
-table_t table_create(const size_t bytes);
-size_t table_push(table_t* table, const void* data);
-void table_push_index(table_t* table, const index_t index);
-void table_push_data(table_t* table, const void* data);
-void table_remove(table_t* table, const index_t index);
-table_t table_compress(const array_t* buffer);
-array_t table_decompress(const table_t* table);
-void* table_values(const table_t* table);
-void* table_value_at(const table_t* table, const size_t index);
-index_t* table_indices(const table_t* table);
-index_t table_index_at(const table_t* table, const size_t index);
-size_t table_indices_size(const table_t* table);
-size_t table_values_size(const table_t* table);
-size_t table_bytes(const table_t* table);
-void table_free(table_t* table);
+struct table table_create(const size_t bytes);
+size_t table_push(struct table* table, const void* data);
+void table_push_index(struct table* table, const index_t index);
+void table_push_data(struct table* table, const void* data);
+void table_remove(struct table* table, const index_t index);
+struct table table_compress(const struct array* buffer);
+struct array table_decompress(const struct table* table);
+void* table_values(const struct table* table);
+void* table_value_at(const struct table* table, const size_t index);
+index_t* table_indices(const struct table* table);
+index_t table_index_at(const struct table* table, const size_t index);
+size_t table_indices_size(const struct table* table);
+size_t table_values_size(const struct table* table);
+size_t table_bytes(const struct table* table);
+void table_free(struct table* table);
 
 #ifdef _cplusplus
 }
