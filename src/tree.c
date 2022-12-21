@@ -30,7 +30,7 @@ struct treenode* treenode_create(const void* data, const size_t bytes)
     return node;
 }
 
-struct treenode* tnode_root(struct treenode* node)
+struct treenode* treenode_root(struct treenode* node)
 {
     while (node->parent) {
         node = node->parent;
