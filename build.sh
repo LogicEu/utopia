@@ -51,7 +51,7 @@ clean() {
 install() {
     [ "$EUID" -ne 0 ] && echo "Run with sudo to install" && exit
     
-    make && make shared
+    make -j && make shared -j
     cp -r utopia /usr/local/include/utopia
 
     [ -f bin/$name.a ] && mv bin/$name.a /usr/local/lib
@@ -70,7 +70,7 @@ uninstall() {
     cleanf /usr/local/lib/$name.so
     cleanf /usr/local/lib/$name.dylib
 
-    echo "Successfully uninstalled $name."
+    echo "Successfully uninstalled $name"
     return 0
 }
 
