@@ -34,6 +34,15 @@ CFLAGS = $(STD) $(WFLAGS) $(OPT) $(INC)
 $(TARGET).a: $(BINDIR) $(OBJS)
 	ar -cr $@ $(OBJS)
 
+.PHONY: shared all clean install uninstall
+
+shared: $(LIB)
+
+all: $(LIB) $(TARGET).a
+
+$(LIB): $(BINDIR) $(OBJS)
+	$(CC) $(CFLAGS) $(DLIB) -o $@ $(OBJS)
+
 $(TMPDIR)/%.o: $(SRCDIR)/%.c $(INCDIR)/%.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -44,13 +53,6 @@ $(TMPDIR):
 
 $(BINDIR):
 	mkdir -p $@
-
-shared: $(LIB)
-
-$(LIB): $(BINDIR) $(OBJS)
-	$(CC) $(CFLAGS) $(DLIB) -o $@ $(OBJS)
-
-all: $(LIB) $(TARGET).a
 
 clean: $(SCRIPT)
 	./$^ $@
