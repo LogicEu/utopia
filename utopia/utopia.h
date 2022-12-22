@@ -9,7 +9,7 @@ Simple, easy and generic container implementations in C.
 
 ================================== @Eugenio Arteaga A. */
 
-#include <utopia/array.h>
+#include <utopia/vector.h>
 #include <utopia/string.h>
 #include <utopia/queue.h>
 #include <utopia/list.h>

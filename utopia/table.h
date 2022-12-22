@@ -49,9 +49,9 @@ Indexed Table Data Structure
 #define USTRING_H <string.h>
 #endif
 
-#include <utopia/bucket.h>
 #include USTDLIB_H
 #include USTRING_H
+#include <utopia/bucket.h>
 
 struct table table_create(const size_t bytes)
 {
