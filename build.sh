@@ -13,25 +13,39 @@ flags=(
     -I.
 )
 
+if echo "$OSTYPE" | grep -q "darwin"; then
+    dlib=(
+        -dynamiclib
+    )
+    suffix=.dylib
+elif echo "$OSTYPE" | grep -q "linux"; then
+    dlib=(
+        -shared
+        -fPIC
+    )
+    suffix=.so
+else
+    echo "This OS is not supported by this shell script yet..." && exit
+fi
+
 comp() {
     echo "$@" && $@
 }
 
 shared() {
-    mkdir -p bin
-    if echo "$OSTYPE" | grep -q "darwin"; then
-        comp $cc ${flags[*]} -dynamiclib $src -o bin/$name.dylib
-    elif echo "$OSTYPE" | grep -q "linux"; then
-        comp $cc -shared ${flags[*]} -fPIC $src -o bin/$name.so 
-    else
-        echo "This OS is not supported by this shell script yet..." && exit
-    fi
+    mkdir -p tmp
+    comp $cc -c $src ${flags[*]} && mv *.o tmp/ || exit
+    
+    mkdir bin
+    comp $cc tmp/*.o -o bin/$name$suffix ${dlib[*]}
 }
 
 static() {
     mkdir -p tmp
+    comp $cc ${flags[*]} -c $src && mv *.o tmp/ || exit
+    
     mkdir -p bin
-    comp $cc ${flags[*]} $arg ${inc[*]} -c $src && mv *.o tmp && ar -cr bin/$name.a tmp/*.o
+    ar -cr bin/$name.a tmp/*.o
 }
 
 cleand() {
@@ -51,7 +65,7 @@ clean() {
 install() {
     [ "$EUID" -ne 0 ] && echo "Run with sudo to install" && exit
     
-    make -j && make shared -j
+    make all -j
     cp -r utopia /usr/local/include/utopia
 
     [ -f bin/$name.a ] && mv bin/$name.a /usr/local/lib
@@ -79,6 +93,10 @@ case "$1" in
         shared;;
     "static")
         static;;
+    "all")
+        shared && static;;
+    "make")
+        make all -j;;
     "clean")
         clean;;
     "install")

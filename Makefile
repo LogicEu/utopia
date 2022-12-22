@@ -13,20 +13,21 @@ TMPDIR = tmp
 BINDIR = bin
 INCDIR = utopia
 
+SCRIPT = build.sh
 SRC = $(wildcard $(SRCDIR)/*.c)
 OBJS = $(patsubst $(SRCDIR)/%.c,$(TMPDIR)/%.o,$(SRC))
 
 OS=$(shell uname -s)
 ifeq ($(OS),Darwin)
-	OSFLAGS = -dynamiclib
-	EXT = dylib
+	DLIB = -dynamiclib
+	SUFFIX = .dylib
 else
-	OSFLAGS = -shared -fPIC
-	EXT = so
+	DLIB = -shared -fPIC
+	SUFFIX = .so
 endif
 
 TARGET = $(BINDIR)/$(NAME)
-LIB = $(TARGET).$(EXT)
+LIB = $(TARGET)$(SUFFIX)
 
 CFLAGS = $(STD) $(WFLAGS) $(OPT) $(INC)
 
@@ -47,13 +48,15 @@ $(BINDIR):
 shared: $(LIB)
 
 $(LIB): $(BINDIR) $(OBJS)
-	$(CC) $(CFLAGS) $(OSFLAGS) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) $(DLIB) -o $@ $(OBJS)
 
-clean: build.sh
+all: $(LIB) $(TARGET).a
+
+clean: $(SCRIPT)
 	./$^ $@
 
-install: build.sh
+install: $(SCRIPT)
 	./$^ $@
 
-uninstall: build.sh
+uninstall: $(SCRIPT)
 	./$^ $@
