@@ -133,8 +133,10 @@ struct tree tree_create(const size_t bytes)
 
 void tree_free(struct tree* tree)
 {
-    treenode_free(tree->root);
-    tree->root = NULL;
+    if (tree->root) {
+        treenode_free(tree->root);
+        tree->root = NULL;
+    }
 }
 
 void tree_push_root(struct tree* tree, const void* data)
