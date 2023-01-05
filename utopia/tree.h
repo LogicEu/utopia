@@ -80,17 +80,31 @@ struct treenode* treenode_root(struct treenode* node)
     return node;
 }
 
+void treenode_children_free(struct treenode* node)
+{
+    size_t i;
+    for (i = 0; node->children[i]; ++i) {
+        treenode_free(node->children[i]);
+    }
+    
+    node->children = realloc(node->children, sizeof(struct treenode*));
+    *node->children = NULL;
+}
+
 void treenode_free(struct treenode* node)
 {
     size_t i;
     for (i = 0; node->children[i]; ++i) {
         treenode_free(node->children[i]);
     }
-
+    
     free(node->children);
     free(node->data);
     
-    memset(node, 0, sizeof(struct treenode));
+    node->parent = NULL;
+    node->children = NULL;
+    node->data = NULL;
+    
     free(node);
 }
 
