@@ -22,6 +22,7 @@ size_t treenode_children_count(const struct treenode* node);
 size_t treenode_children_capacity(const size_t children_count);
 struct treenode* treenode_create(const void* data, const size_t bytes);
 struct treenode* treenode_root(struct treenode* node);
+void treenode_children_free(struct treenode* node);
 void treenode_free(struct treenode* node);
 void treenode_push(struct treenode* root, struct treenode* leave);
 int treenode_remove(struct treenode* root, const size_t index);
