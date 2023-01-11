@@ -108,18 +108,18 @@ void treenode_free(struct treenode* node)
     
     free(node);
 }
-
-void treenode_push(struct treenode* root, struct treenode* leave)
+#include <stdio.h>
+void treenode_push(struct treenode* root, struct treenode* leaf)
 {
     const size_t size = treenode_children_count(root);
-    const size_t cap = treenode_children_capacity(size);
-
-    if (size + 1 == cap) {
-        root->children = realloc(root->children, cap * 2 * sizeof(struct treenode));
+    const size_t cap = treenode_children_capacity(size + 1);
+    
+    if (size + 2 >= cap) {
+        root->children = realloc(root->children, cap * 2 * sizeof(struct treenode*));
     }
     
-    leave->parent = root;
-    root->children[size] = leave;
+    leaf->parent = root;
+    root->children[size] = leaf;
     root->children[size + 1] = NULL;
 }
 
