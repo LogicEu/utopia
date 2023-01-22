@@ -23,10 +23,9 @@ struct vector vector_sized(const size_t bytes, const size_t size);
 struct vector vector_wrap(void* data, const size_t bytes, const size_t size);
 struct vector vector_copy(const struct vector* vector);
 struct vector vector_move(struct vector* vector);
-void vector_push(struct vector* vector, const void* data);
-void vector_push_vargs(struct vector* vector, const size_t argc, ...);
-void vector_push_block(struct vector* vector, const void* data, const size_t count);
-void vector_push_block_at(struct vector* vector, const void* data, 
+void* vector_push(struct vector* vector, const void* data);
+void* vector_push_block(struct vector* vector, const void* data, const size_t count);
+void* vector_push_block_at(struct vector* vector, const void* data, 
                         const size_t count, const size_t index);
 void vector_remove(struct vector* vector, const size_t index);
 void vector_remove_block(struct vector* vector, const size_t start, const size_t end);
@@ -61,13 +60,8 @@ Dynamic Generic Vector
 #define USTRING_H <string.h>
 #endif
 
-#ifndef USTDARG_H 
-#define USTDARG_H <stdarg.h>
-#endif
-
 #include USTDLIB_H
 #include USTRING_H
-#include USTDARG_H
 
 struct vector vector_create(const size_t bytes)
 {
@@ -136,26 +130,32 @@ struct vector vector_wrap(void* data, const size_t bytes, const size_t size)
     return vector;
 }
 
-void vector_push(struct vector* vector, const void* data)
+void* vector_push(struct vector* vector, const void* data)
 {
+    char* ptr;
     if (vector->size == vector->capacity) {
         vector->capacity = vector->capacity * 2 + !vector->capacity;
         vector->data = realloc(vector->data, vector->capacity * vector->bytes);
     }
-    memcpy(_vector_index(vector, vector->size++), data, vector->bytes);
+    ptr = _vector_index(vector, vector->size++);
+    memcpy(ptr, data, vector->bytes);
+    return ptr;
 }
 
-void vector_push_block(struct vector* vector, const void* data, const size_t count)
+void* vector_push_block(struct vector* vector, const void* data, const size_t count)
 {
+    char* ptr;
     while (vector->size + count > vector->capacity) {
         vector->capacity += count + 1;
         vector->data = realloc(vector->data, vector->capacity * vector->bytes);
     }
-    memcpy(_vector_index(vector, vector->size), data, count * vector->bytes);
+    ptr = _vector_index(vector, vector->size);
+    memcpy(ptr, data, count * vector->bytes);
     vector->size += count;
+    return ptr;
 }
 
-void vector_push_block_at(struct vector* vector, const void* data, 
+void* vector_push_block_at(struct vector* vector, const void* data, 
                         const size_t count, const size_t index)
 {
     char* ptr;
@@ -168,17 +168,7 @@ void vector_push_block_at(struct vector* vector, const void* data,
     memcpy(ptr + count * vector->bytes, ptr, (vector->size - index) * vector->bytes);
     memcpy(ptr, data, count * vector->bytes);
     vector->size += count;
-}
-
-void vector_push_vargs(struct vector* vector, const size_t argc, ...)
-{
-    size_t i;
-    va_list args;
-    va_start(args, argc);
-    for (i = 0; i < argc; ++i) {
-        vector_push(vector, va_arg(args, void*));
-    }
-    va_end(args);
+    return ptr;
 }
 
 void vector_remove(struct vector* vector, const size_t index)

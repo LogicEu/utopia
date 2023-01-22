@@ -19,9 +19,9 @@ struct string string_wrap(char* str);
 struct string string_ranged(const char* from, const char* to);
 struct string string_reserve(const size_t size);
 struct string string_empty(void);
-void string_push(struct string* str, const char* buffer);
-void string_push_at(struct string* str, const char* buffer, const size_t size);
-void string_concat(struct string* str1, const struct string* str2);
+char* string_push(struct string* str, const char* buffer);
+char* string_push_at(struct string* str, const char* buffer, const size_t size);
+char* string_concat(struct string* str1, const struct string* str2);
 size_t string_capacity(const struct string* str);
 size_t string_size(const struct string* str);
 char* string_data(const struct string* str);
@@ -111,43 +111,55 @@ struct string string_empty(void)
     return str;
 }
 
-void string_push(struct string* str, const char* buffer)
+char* string_push(struct string* str, const char* buffer)
 {
+    char* ptr = NULL;
     if (buffer) {
         const size_t len = strlen(buffer);
         if (str->size + len + 1 >= str->capacity) {
             str->capacity = str->capacity * 2 + len + 1;
             str->data = realloc(str->data, str->capacity);
         }
-        memcpy(str->data + str->size, buffer, len + 1);
+
+        ptr = str->data + str->size;
+        memcpy(ptr, buffer, len + 1);
         str->size += len;
     }
+    return ptr;
 }
 
-void string_push_at(struct string* str, const char* buf, const size_t index)
+char* string_push_at(struct string* str, const char* buf, const size_t index)
 {
+    char* ptr = NULL;
     if (buf) {
         const size_t len = strlen(buf);
         if (str->size + len + 1 >= str->capacity) {
             str->capacity = str->capacity * 2 + len + 1;
             str->data = realloc(str->data, str->capacity);
         }
-        memmove(str->data + index + len, str->data + index, str->size - index + 1);
-        memcpy(str->data + index, buf, len);
+        
+        ptr = str->data + index;
+        memmove(ptr + len, str->data + index, str->size - index + 1);
+        memcpy(ptr, buf, len);
         str->size += len;
     }
+    return ptr;
 }
 
-void string_concat(struct string* str1, const struct string* str2)
+char* string_concat(struct string* str1, const struct string* str2)
 {
+    char* ptr = NULL;
     if (str2->data) {
         if (str1->size + str2->size + 1 >= str1->capacity) {
             str1->capacity = str1->capacity * 2 + str2->size + 1;
             str1->data = realloc(str1->data, str1->capacity);
         }
-        memcpy(str1->data + str1->size, str2->data, str2->size + 1);
+        
+        ptr = str1->data + str1->size;
+        memcpy(ptr, str2->data, str2->size + 1);
         str1->size += str2->size;
     }
+    return ptr;
 }
 
 size_t string_capacity(const struct string* str)
