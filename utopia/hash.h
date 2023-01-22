@@ -28,7 +28,7 @@ size_t hash_size(const struct hash* table);
 size_t hash_capacity(const struct hash* table);
 size_t hash_bytes(const struct hash* table);
 void hash_resize(struct hash* table, const size_t new_size);
-void hash_push(struct hash* table, const void* data);
+void* hash_push(struct hash* table, const void* data);
 size_t hash_push_if(struct hash* table, const void* data);
 void hash_remove(struct hash* table, const void* data);
 void hash_free(struct hash* table);
@@ -191,17 +191,19 @@ void hash_remove(struct hash* table, const void* data)
     }
 }
 
-void hash_push(struct hash* table, const void* data)
+void* hash_push(struct hash* table, const void* data)
 {
+    void* ptr;
     size_t hashmod;
     if (table->size == table->mod) {
         hash_resize(table, table->mod * 2);
     }
 
     hashmod = table->func(data) % table->mod;
-    table->indices[hashmod] = bucket_push(table->indices[hashmod], table->size);
-    
-    memcpy(_hash_index(table, table->size++), data, table->bytes);
+    ptr = _hash_index(table, table->size);
+    table->indices[hashmod] = bucket_push(table->indices[hashmod], table->size++);
+    memcpy(ptr, data, table->bytes);
+    return ptr;
 }
 
 index_t hash_push_if(struct hash* table, const void* data)

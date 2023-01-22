@@ -33,7 +33,7 @@ size_t map_capacity(const struct map* map);
 size_t map_key_bytes(const struct map* map);
 size_t map_value_bytes(const struct map* map);
 void map_resize(struct map* map, const size_t size);
-void map_push(struct map* map, const void* key, const void* value);
+void* map_push(struct map* map, const void* key, const void* value);
 size_t map_push_if(struct map* map, const void* key, const void* value);
 void map_remove(struct map* map, const void* key);
 void map_free(struct map* map);
@@ -217,8 +217,9 @@ void map_remove(struct map* map, const void* key)
     }
 }
 
-void map_push(struct map* map, const void* key, const void* value)
+void* map_push(struct map* map, const void* key, const void* value)
 {
+    void* ptr;
     size_t hashmod;
     if (map->size == map->mod) {
         map_resize(map, map->mod * 2);
@@ -227,9 +228,11 @@ void map_push(struct map* map, const void* key, const void* value)
     hashmod = map->func(key) % map->mod;
     map->indices[hashmod] = bucket_push(map->indices[hashmod], map->size);
 
+    ptr = _map_value_at(map, map->size);
     memcpy(_map_key_at(map, map->size), key, map->key_bytes);
-    memcpy(_map_value_at(map, map->size), value, map->value_bytes);
+    memcpy(ptr, value, map->value_bytes);
     ++map->size;
+    return ptr;
 }
 
 size_t map_push_if(struct map* map, const void* key, const void* value)
