@@ -1,7 +1,7 @@
 
 /*************************
-Doubly Linked Generic Node
+Generic Doubly Linked List
 *************************/
 
-#define UTOPIA_LIST_IMPL
+#define UTOPIA_IMPLEMENTATION
 #include <utopia/list.h>

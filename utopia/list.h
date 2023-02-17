@@ -1,11 +1,49 @@
+
+/*  Copyright (c) 2022 Eugenio Arteaga A.
+
+Permission is hereby granted, free of charge, to any 
+person obtaining a copy of this software and associated 
+documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice 
+shall be included in all copies or substantial portions
+of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
+
 #ifndef UTOPIA_LIST_H
 #define UTOPIA_LIST_H
 
-#ifdef _cplusplus
+/*=======================================================
+**************  UTOPIA UTILITY LIBRARY   ****************
+Simple and easy generic containers & data structures in C 
+================================== @Eugenio Arteaga A. */
+
+/*************************
+Generic Doubly Linked List
+*************************/
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <utopia/types.h>
+#ifndef USTDDEF_H
+#define USTDDEF_H <stddef.h>
+#endif
+
+#include USTDDEF_H
 
 struct listnode {
     struct listnode *next;
@@ -45,11 +83,15 @@ void list_remove_node(struct list* list, struct listnode* node);
 void list_remove_index(struct list* list, const size_t index);
 void list_free(struct list* list);
 
-/*************************
-Doubly Linked Generic Node
-*************************/
+#ifdef __cplusplus
+}
+#endif
+#endif /* UTOPIA_LIST_H */
 
-#ifdef UTOPIA_LIST_IMPL
+#ifdef UTOPIA_IMPLEMENTATION
+
+#ifndef UTOPIA_LIST_IMPLEMENTED
+#define UTOPIA_LIST_IMPLEMENTED
 
 #ifndef USTDLIB_H 
 #define USTDLIB_H <stdlib.h>
@@ -59,9 +101,12 @@ Doubly Linked Generic Node
 #define USTRING_H <string.h>
 #endif
 
-
 #include USTDLIB_H
 #include USTRING_H
+
+/*************************
+Generic Doubly Linked List
+*************************/
 
 struct listnode* listnode_create(const void* data, const size_t bytes)
 {
@@ -319,9 +364,5 @@ void list_free(struct list* list)
     list->tail = NULL;
 }
 
-#endif /* UTOPIA_LIST_IMPL */
-
-#ifdef _cplusplus
-}
-#endif
-#endif /* UTOPIA_LIST_H */
+#endif /* UTOPIA_LIST_IMPLEMENTED */
+#endif /* UTOPIA_IMPLEMENTATION */

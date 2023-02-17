@@ -1,18 +1,61 @@
+
+/*  Copyright (c) 2022 Eugenio Arteaga A.
+
+Permission is hereby granted, free of charge, to any 
+person obtaining a copy of this software and associated 
+documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice 
+shall be included in all copies or substantial portions
+of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
+
 #ifndef UTOPIA_TREE_H
 #define UTOPIA_TREE_H
 
-#ifdef _cplusplus
+/*=======================================================
+**************  UTOPIA UTILITY LIBRARY   ****************
+Simple and easy generic containers & data structures in C 
+================================== @Eugenio Arteaga A. */
+
+/*********************
+Generic & Dynamic Tree
+*********************/
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <utopia/types.h>
+#ifndef USTDDEF_H
+#define USTDDEF_H <stddef.h>
+#endif
 
-/* Independent and Dynamic Tree Node Data Structure */
+#include USTDDEF_H
 
 struct treenode {
     struct treenode** children;
     struct treenode* parent;
     void* data;
+};
+
+struct tree {  
+    void* data;
+    struct tree* parent;
+    struct tree** children;
+    struct treestore* store;
 };
 
 size_t treenode_children_count(const struct treenode* node);
@@ -23,15 +66,6 @@ void treenode_children_free(struct treenode* node);
 void treenode_free(struct treenode* node);
 void treenode_push(struct treenode* root, struct treenode* leave);
 int treenode_remove(struct treenode* root, const size_t index);
-
-/* Self Managing Dynamic Tree Node */
-
-struct tree {  
-    void* data;
-    struct tree* parent;
-    struct tree** children;
-    struct treestore* store;
-};
 
 size_t tree_bytes(const struct tree* tree);
 size_t tree_size(const struct tree* tree);
@@ -49,11 +83,15 @@ void tree_free(struct tree* tree);
 void tree_clean(struct tree* tree);
 void tree_insert(struct tree* parent, struct tree* child);
 
-/*********************
-Generic Tree Container
-*********************/
+#ifdef __cplusplus
+}
+#endif
+#endif /* UTOPIA_TREE_H */
 
-#ifdef UTOPIA_TREE_IMPL
+#ifdef UTOPIA_IMPLEMENTATION
+
+#ifndef UTOPIA_TREE_IMPLEMENTED
+#define UTOPIA_TREE_IMPLEMENTED
 
 #ifndef USTDLIB_H 
 #define USTDLIB_H <stdlib.h>
@@ -63,13 +101,12 @@ Generic Tree Container
 #define USTRING_H <string.h>
 #endif
 
-#ifndef USYSTYPES_H
-#define USYSTYPES_H <sys/types.h>
-#endif
-
-#include USYSTYPES_H
 #include USTDLIB_H
 #include USTRING_H
+
+/*********************
+Generic & Dynamic Tree
+*********************/
 
 size_t treenode_children_count(const struct treenode* node)
 {
@@ -203,7 +240,7 @@ static void treestore_free(struct treestore* store)
 }
 
 static void treestore_offset(
-    struct treestore* store, const off_t offnode, const off_t offdata)
+    struct treestore* store, const ptrdiff_t offnode, const ptrdiff_t offdata)
 {
     size_t i, j;
     struct tree* node;
@@ -211,11 +248,11 @@ static void treestore_offset(
 
     node = store->nodes;
     for (i = 0; i < count; ++i) {  
-        node->data = (void*)((off_t)node->data + offdata);
+        node->data = (void*)((ptrdiff_t)node->data + offdata);
         if (node->parent)
-            node->parent = (struct tree*)((off_t)node->parent + offnode);
+            node->parent = (struct tree*)((ptrdiff_t)node->parent + offnode);
         for (j = 0; node->children[j]; ++j)
-            node->children[j] = (struct tree*)((off_t)node->children[j] + offnode);
+            node->children[j] = (struct tree*)((ptrdiff_t)node->children[j] + offnode);
         ++node;
     }
 }
@@ -233,7 +270,7 @@ static void treestore_clean_back(struct treestore* store)
 
 static void treestore_clean_front(struct treestore* store)
 {
-    off_t offset;
+    ptrdiff_t offset;
     const struct tree nulltree = {NULL, NULL, NULL, NULL};
     const struct tree *end, *node = store->nodes;
     for (end = store->nodes + store->size; node < end; ++node) {
@@ -256,14 +293,14 @@ static struct tree* tree_store(struct treestore* store, const void* data)
     struct tree* node;
     if (store->size + 1 >= store->capacity) {
         void* newdata;
-        off_t offnode, offdata;
+        ptrdiff_t offnode, offdata;
         
         store->capacity = (!store->capacity + store->capacity) * 4;
         node = realloc(store->nodes, store->capacity * sizeof(struct tree));
         newdata = realloc(store->data, store->capacity * store->bytes);
         
-        offnode = (off_t)node - (off_t)store->nodes;
-        offdata = (off_t)newdata - (off_t)store->data;
+        offnode = (ptrdiff_t)node - (ptrdiff_t)store->nodes;
+        offdata = (ptrdiff_t)newdata - (ptrdiff_t)store->data;
         
         store->nodes = node;
         store->data = newdata;
@@ -389,7 +426,7 @@ void tree_insert(struct tree* parent, struct tree* child)
 struct tree* tree_push(struct tree* node, const void* data)
 {
     struct tree* child;
-    const off_t offset = node - node->store->nodes;
+    const ptrdiff_t offset = node - node->store->nodes;
     child = tree_store(node->store, data);
     node = node->store->nodes + offset;
     tree_insert(node, child);
@@ -404,9 +441,5 @@ struct tree* tree_root(struct tree* tree)
     return tree;
 }
 
-#endif /* UTOPIA_TREE_IMPL */
-
-#ifdef _cplusplus
-}
-#endif
-#endif /* UTOPIA_TREE_H */
+#endif /* UTOPIA_TREE_IMPLEMENTED */
+#endif /* UTOPIA_IMPLEMENTATION */

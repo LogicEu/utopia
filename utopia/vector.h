@@ -1,11 +1,48 @@
+/*  Copyright (c) 2022 Eugenio Arteaga A.
+
+Permission is hereby granted, free of charge, to any 
+person obtaining a copy of this software and associated 
+documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice 
+shall be included in all copies or substantial portions
+of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
+
 #ifndef UTOPIA_VECTOR_H
 #define UTOPIA_VECTOR_H
 
-#ifdef _cplusplus
+/*=======================================================
+**************  UTOPIA UTILITY LIBRARY   ****************
+Simple and easy generic containers & data structures in C 
+================================== @Eugenio Arteaga A. */
+
+/*************
+Generic Vector
+*************/
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <utopia/types.h>
+#ifndef USTDDEF_H
+#define USTDDEF_H <stddef.h>
+#endif
+
+#include USTDDEF_H
 
 struct vector {
     void* data;
@@ -46,11 +83,15 @@ void vector_set(struct vector* vector);
 void vector_clear(struct vector* vector);
 void vector_free(struct vector* vector);
 
-/*********************
-Dynamic Generic Vector
-*********************/
+#ifdef __cplusplus
+}
+#endif
+#endif /* UTOPIA_VECTOR_H */
 
-#ifdef UTOPIA_VECTOR_IMPL
+#ifdef UTOPIA_IMPLEMENTATION
+
+#ifndef UTOPIA_VECTOR_IMPLEMENTED
+#define UTOPIA_VECTOR_IMPLEMENTED
 
 #ifndef USTDLIB_H 
 #define USTDLIB_H <stdlib.h>
@@ -62,6 +103,10 @@ Dynamic Generic Vector
 
 #include USTDLIB_H
 #include USTRING_H
+
+/*************
+Generic Vector
+*************/
 
 struct vector vector_create(const size_t bytes)
 {
@@ -318,9 +363,5 @@ void vector_free(struct vector* vector)
     }
 }
 
-#endif /* UTOPIA_VECTOR_IMPL */
-
-#ifdef _cplusplus
-}
-#endif
-#endif /* UTOPIA_VECTOR_H */
+#endif /* UTOPIA_VECTOR_IMPLEMENTED */
+#endif /* UTOPIA_IMPLEMENTATION */

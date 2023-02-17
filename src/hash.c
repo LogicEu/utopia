@@ -3,5 +3,5 @@
 Generic Hash Indexed Table
 **************************/
 
-#define UTOPIA_HASH_IMPL
+#define UTOPIA_IMPLEMENTATION
 #include <utopia/hash.h>

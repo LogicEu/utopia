@@ -3,5 +3,5 @@
 Generic Queue Array
 *******************/
 
-#define UTOPIA_QUEUE_IMPL
+#define UTOPIA_IMPLEMENTATION
 #include <utopia/queue.h>

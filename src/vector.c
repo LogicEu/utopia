@@ -1,7 +1,7 @@
 
-/*********************
-Dynamic Generic Vector
-*********************/
+/*************
+Generic Vector
+*************/
 
-#define UTOPIA_VECTOR_IMPL
+#define UTOPIA_IMPLEMENTATION
 #include <utopia/vector.h>

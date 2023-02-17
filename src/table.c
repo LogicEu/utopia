@@ -1,7 +1,7 @@
 
-/***************************
-Indexed Table Data Structure
-****************************/
+/**********************
+Unordered Indexed Table
+***********************/
 
-#define UTOPIA_TABLE_IMPL
+#define UTOPIA_IMPLEMENTATION
 #include <utopia/table.h>

@@ -1,7 +1,7 @@
 
 /***********************
-String Dynamic Container
+Dynamic String Container
 ************************/
 
-#define UTOPIA_STRING_IMPL
+#define UTOPIA_IMPLEMENTATION
 #include <utopia/string.h>

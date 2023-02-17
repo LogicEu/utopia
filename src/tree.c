@@ -1,7 +1,7 @@
 
 /*********************
-Generic Tree Container
+Generic & Dynamic Tree
 *********************/
 
-#define UTOPIA_TREE_IMPL
+#define UTOPIA_IMPLEMENTATION
 #include <utopia/tree.h>

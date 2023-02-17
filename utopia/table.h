@@ -1,14 +1,52 @@
+
+/*  Copyright (c) 2022 Eugenio Arteaga A.
+
+Permission is hereby granted, free of charge, to any 
+person obtaining a copy of this software and associated 
+documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice 
+shall be included in all copies or substantial portions
+of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
+
 #ifndef UTOPIA_TABLE_H
 #define UTOPIA_TABLE_H
 
-#ifdef _cplusplus
+/*=======================================================
+**************  UTOPIA UTILITY LIBRARY   ****************
+Simple and easy generic containers & data structures in C 
+================================== @Eugenio Arteaga A. */
+
+/**********************
+Unordered Indexed Table
+***********************/
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <utopia/types.h>
+#ifndef USTDDEF_H
+#define USTDDEF_H <stddef.h>
+#endif
+
+#include USTDDEF_H
 
 struct table {
-    index_t* indices;
+    size_t* indices;
     void* data;
     size_t bytes;
     size_t capacity;
@@ -21,25 +59,29 @@ struct table {
 
 struct table table_create(const size_t bytes);
 size_t table_push(struct table* table, const void* data);
-void table_push_index(struct table* table, const index_t index);
+void table_push_index(struct table* table, const size_t index);
 void table_push_data(struct table* table, const void* data);
-void table_remove(struct table* table, const index_t index);
+void table_remove(struct table* table, const size_t index);
 struct table table_compress(const void* data, const size_t bytes, const size_t count);
 void* table_decompress(const struct table* table);
 void* table_values(const struct table* table);
 void* table_value_at(const struct table* table, const size_t index);
-index_t* table_indices(const struct table* table);
-index_t table_index_at(const struct table* table, const size_t index);
+size_t* table_indices(const struct table* table);
+size_t table_index_at(const struct table* table, const size_t index);
 size_t table_indices_size(const struct table* table);
 size_t table_values_size(const struct table* table);
 size_t table_bytes(const struct table* table);
 void table_free(struct table* table);
 
-/***************************
-Indexed Table Data Structure
-****************************/
+#ifdef __cplusplus
+}
+#endif
+#endif /* UTOPIA_TABLE_H */
 
-#ifdef UTOPIA_TABLE_IMPL
+#ifdef UTOPIA_IMPLEMENTATION
+
+#ifndef UTOPIA_TABLE_IMPLEMENTATION
+#define UTOPIA_TABLE_IMPLEMENTATION
 
 #ifndef USTDLIB_H 
 #define USTDLIB_H <stdlib.h>
@@ -51,7 +93,50 @@ Indexed Table Data Structure
 
 #include USTDLIB_H
 #include USTRING_H
-#include <utopia/bucket.h>
+
+/* Bucket Implementation */
+
+#ifndef UTOPIA_BUCKET_IMPLEMENTED
+#define UTOPIA_BUCKET_IMPLEMENTED
+
+#define BUCKET_CAP_INDEX 0
+#define BUCKET_SIZE_INDEX 1
+#define BUCKET_DATA_INDEX 2
+
+#define BUCKET_SIZE(bucket) (bucket ? bucket[BUCKET_SIZE_INDEX] : 0)
+#define BUCKET_CAP(bucket) (bucket ? bucket[BUCKET_CAP_INDEX] : 0)
+#define BUCKET_DATA(bucket) (bucket ? bucket[BUCKET_DATA_INDEX] : 0)
+
+static size_t* bucket_push(size_t* bucket, size_t index)
+{
+    size_t size = BUCKET_SIZE(bucket);
+    size_t cap = BUCKET_CAP(bucket);
+
+    if (size >= cap) {
+        cap = (!cap + cap) * 2;
+        bucket = realloc(bucket, (cap + BUCKET_DATA_INDEX) * sizeof(size_t));
+        bucket[BUCKET_CAP_INDEX] = cap;
+    }
+
+    bucket[BUCKET_DATA_INDEX + size] = index;
+    bucket[BUCKET_SIZE_INDEX] = size + 1;
+
+    return bucket;
+}
+
+static void bucket_remove(size_t* bucket, const size_t index)
+{
+    const size_t size = BUCKET_SIZE(bucket) + BUCKET_DATA_INDEX;
+    size_t* ptr = bucket + index;
+    memmove(ptr, ptr + 1, (size - index - 1) * sizeof(size_t));
+    bucket[BUCKET_SIZE_INDEX] = size - 1 - BUCKET_DATA_INDEX;
+}
+
+#endif /* UTOPIA_BUCKET_IMPLEMENTED */
+
+/**********************
+Unordered Indexed Table
+***********************/
 
 struct table table_create(const size_t bytes)
 {
@@ -77,7 +162,7 @@ size_t table_search(const struct table* table, const void* data)
     return 0;
 }
 
-void table_push_index(struct table* table, const index_t index)
+void table_push_index(struct table* table, const size_t index)
 {
     table->indices = bucket_push(table->indices, index);
 }
@@ -103,11 +188,11 @@ size_t table_push(struct table* table, const void* data)
     return search;
 }
 
-void table_remove(struct table* table, const index_t index)
+void table_remove(struct table* table, const size_t index)
 {
     if (table->indices) {
         size_t size;
-        index_t* indices, i;
+        size_t* indices, i;
         char* ptr = _table_at(table, index);
         memmove(ptr, ptr + table->bytes, (--table->size - index) * table->bytes);
         
@@ -115,7 +200,7 @@ void table_remove(struct table* table, const index_t index)
         size = table_indices_size(table);
         for (i = 0; i < size; ++i) {
             if (indices[i] == index) {
-                bucket_remove(table->indices, (index_t)i);
+                bucket_remove(table->indices, (size_t)i);
             } 
             else if (table->indices[i] > index) {
                 --table->indices[i];
@@ -144,7 +229,7 @@ void* table_decompress(const struct table* table)
     void* data;
     char* ptr;
 
-    const size_t size = bucket_size(table->indices) + BUCKET_DATA_INDEX;
+    const size_t size = BUCKET_SIZE(table->indices) + BUCKET_DATA_INDEX;
     data = malloc(table->bytes * size);
     ptr = data;
     
@@ -166,19 +251,19 @@ void* table_value_at(const struct table* table, const size_t index)
     return _table_value_at(table, index);
 }
 
-index_t* table_indices(const struct table* table)
+size_t* table_indices(const struct table* table)
 {
     return table->indices + BUCKET_DATA_INDEX;
 }
 
-index_t table_index_at(const struct table* table, const size_t index)
+size_t table_index_at(const struct table* table, const size_t index)
 {
     return _table_index_at(table, index);
 }
 
 size_t table_indices_size(const struct table* table)
 {
-    return bucket_size(table->indices);
+    return BUCKET_SIZE(table->indices);
 }
 
 size_t table_values_size(const struct table* table)
@@ -204,9 +289,5 @@ void table_free(struct table* table)
     }
 }
 
-#endif /* UTOPIA_TABLE_IMPL */
-
-#ifdef _cplusplus
-}
-#endif
-#endif /* UTOPIA_TABLE_H */
+#endif /* UTOPIA_TABLE_IMPLEMENTATION */
+#endif /* UTOPIA_IMPLEMENTATION */
