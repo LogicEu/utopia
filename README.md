@@ -65,8 +65,7 @@ int main(void)
 #include <utopia/vector.h>
 ```
 
-> You should only define UTOPIA_IMPLEMENTATION in a single
-> translation unit. You can include every header file more
+> You can include every header file more
 > than once to keep the declarationd and definitions 
 > separated.
 
@@ -74,19 +73,19 @@ int main(void)
 
 > You can easily compile utopia to a static or dynamic 
 > library, you don't need to recompile for every different
-> type you need to implement, you can actually adapt at
-> runtime.
+> type you need to implement, utopia's containers can 
+> adapt at runtime.
+
+* Static
+
+```shell
+make # or ./build.sh static
+```
 
 * Shared
 
 ```shell
 make shared # or ./build.sh shared
-```
-
-* Static
-
-```shell
-make static # or ./build.sh static
 ```
 
 ## Install
