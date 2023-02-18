@@ -31,9 +31,9 @@
 
 ```C
 
-#include UTOPIA_IMPLEMENTATION
-#define <utopia/vector.h>
-#define <stdio.h>
+#define UTOPIA_IMPLEMENTATION
+#include <utopia/vector.h>
+#include <stdio.h>
 
 #define SIZE 1000
 
@@ -46,7 +46,7 @@ int main(void)
 
     ptr = vector.data;
     for (size_t* end = ptr + vector.size; ptr != end; ++ptr)
-        printf("%lf\n", *ptr);
+        printf("%zu\n", *ptr);
 
     vector_free(&vector);
 }
@@ -76,16 +76,16 @@ int main(void)
 > type you need to implement, utopia's containers can 
 > adapt at runtime.
 
-* Static
+> Static:
 
 ```shell
-make # or ./build.sh static
+make -j # or ./build.sh static
 ```
 
-* Shared
+> Shared:
 
 ```shell
-make shared # or ./build.sh shared
+make shared -j # or ./build.sh shared
 ```
 
 ## Install
