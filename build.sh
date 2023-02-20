@@ -36,7 +36,7 @@ shared() {
     mkdir -p tmp
     comp $cc -c $src ${flags[*]} && mv *.o tmp/ || exit
     
-    mkdir bin
+    mkdir -p bin
     comp $cc tmp/*.o -o bin/$name$suffix ${dlib[*]}
 }
 
