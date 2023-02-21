@@ -63,7 +63,7 @@ void table_push_index(struct table* table, const size_t index);
 void table_push_data(struct table* table, const void* data);
 void table_remove(struct table* table, const size_t index);
 struct table table_compress(const void* data, const size_t bytes, const size_t count);
-void* table_decompress(const struct table* table);
+void* table_decompress(const struct table* table, size_t* size);
 void* table_values(const struct table* table);
 void* table_value_at(const struct table* table, const size_t index);
 size_t* table_indices(const struct table* table);
@@ -223,17 +223,19 @@ struct table table_compress(const void* data, const size_t bytes, const size_t c
     return table;
 }
 
-void* table_decompress(const struct table* table)
+void* table_decompress(const struct table* table, size_t* size)
 {
     size_t i;
     void* data;
     char* ptr;
 
-    const size_t size = BUCKET_SIZE(table->indices) + BUCKET_DATA_INDEX;
-    data = malloc(table->bytes * size);
+    const size_t count = BUCKET_SIZE(table->indices) + BUCKET_DATA_INDEX;
+    *size = BUCKET_SIZE(table->indices);
+
+    data = malloc(*size * table->bytes);
     ptr = data;
     
-    for (i = BUCKET_DATA_INDEX; i < size; ++i) {
+    for (i = BUCKET_DATA_INDEX; i < count; ++i) {
         memcpy(ptr, _table_at(table, table->indices[i]), table->bytes);
         ptr += table->bytes;
     }
