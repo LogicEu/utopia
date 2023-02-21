@@ -18,11 +18,11 @@
 ## Generic
 
 > Implementing a generic container in C is not new. The
-> aproach taken by utopia is the void pointer solution.
+> approach taken by utopia is the void pointer solution.
 > At the cost of having an extra member in each struct 
 > keeping track of the container's element size in bytes,
 > we get an extremely flexible and comfortable API.
-> The template aproach is undoubtedly faster, but this one 
+> The template approach is undoubtedly faster, but this one 
 > has other advantages like debuggability, being able to 
 > compile beforehand, restructure the size of the elements 
 > at runtime and being able to easily wrap heap memory.
