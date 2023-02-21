@@ -28,32 +28,32 @@ else
     echo "This OS is not supported by this shell script yet..." && exit
 fi
 
-comp() {
+cmd() {
     echo "$@" && $@
 }
 
 shared() {
-    mkdir -p tmp
-    comp $cc -c $src ${flags[*]} && mv *.o tmp/ || exit
+    cmd mkdir -p tmp
+    cmd $cc -c $src ${flags[*]} && cmd mv *.o tmp/ || exit
     
-    mkdir -p bin
-    comp $cc tmp/*.o -o bin/$name$suffix ${dlib[*]}
+    cmd mkdir -p bin
+    cmd $cc tmp/*.o -o bin/$name$suffix ${dlib[*]}
 }
 
 static() {
-    mkdir -p tmp
-    comp $cc ${flags[*]} -c $src && mv *.o tmp/ || exit
+    cmd mkdir -p tmp
+    cmd $cc ${flags[*]} -c $src && cmd mv *.o tmp/ || exit
     
-    mkdir -p bin
-    ar -cr bin/$name.a tmp/*.o
+    cmd mkdir -p bin
+    cmd ar -cr bin/$name.a tmp/*.o
 }
 
 cleand() {
-    [ -d $1 ] && rm -r $1 && echo "deleted $1"
+    [ -d $1 ] && cmd rm -r $1
 }
 
 cleanf() {
-    [ -f $1 ] && rm $1 && echo "deleted $1"
+    [ -f $1 ] && cmd rm $1
 }
 
 clean() {
@@ -65,12 +65,12 @@ clean() {
 install() {
     [ "$EUID" -ne 0 ] && echo "Run with sudo to install" && exit
     
-    make all -j
-    cp -r utopia /usr/local/include/utopia
+    make all -j # or static && shared
+    cmd cp -r utopia /usr/local/include/utopia
 
-    [ -f bin/$name.a ] && mv bin/$name.a /usr/local/lib
-    [ -f bin/$name.so ] && mv bin/$name.so /usr/local/lib
-    [ -f bin/$name.dylib ] && mv bin/$name.dylib /usr/local/lib
+    [ -f bin/$name.a ] && cmd mv bin/$name.a /usr/local/lib
+    [ -f bin/$name.so ] && cmd mv bin/$name.so /usr/local/lib
+    [ -f bin/$name.dylib ] && cmd mv bin/$name.dylib /usr/local/lib
     
     echo "Successfully installed $name"
     return 0
@@ -104,7 +104,7 @@ case "$1" in
     "uninstall")
         uninstall;;
     *)
-        echo "Run with 'shared' or 'static' to build."
-        echo "Use 'install' to build and install in /usr/local."
-        echo "Use 'clean' to remove local builds."
+        echo "Run with 'shared' or 'static' to build"
+        echo "Use 'install' to build and install in /usr/local"
+        echo "Use 'clean' to remove local builds"
 esac
