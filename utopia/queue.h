@@ -58,12 +58,10 @@ struct queue queue_create(const size_t bytes);
 struct queue queue_reserve(const size_t bytes, const size_t reserve);
 struct queue queue_copy(const struct queue* queue);
 struct queue queue_move(struct queue* queue);
-void queue_push(struct queue* queue, const void* data);
+void* queue_push(struct queue* queue, const void* data);
 void* queue_index(const struct queue* queue, const size_t index);
 void* queue_peek(const struct queue* queue);
 void* queue_pop(struct queue* queue);
-void queue_resize(struct queue* queue, const size_t size);
-void queue_cut(struct queue* queue);
 size_t queue_bytes(const struct queue* queue);
 size_t queue_size(const struct queue* queue);
 size_t queue_capacity(const struct queue* queue);
@@ -126,8 +124,7 @@ struct queue queue_copy(const struct queue* queue)
     ret.bytes = queue->bytes;
     ret.capacity = queue->capacity;
     ret.front = queue->front;
-    ret.rear = queue->rear;
-    
+    ret.rear = queue->rear; 
     memcpy(ret.data, queue->data, ret.bytes * ret.capacity);
     return ret;
 }
@@ -145,67 +142,69 @@ struct queue queue_move(struct queue* queue)
     queue->rear = 0;
     queue->capacity = 0;
     queue->data = NULL;
-
     return ret;
 }
 
-void queue_push(struct queue* queue, const void* data)
+void* queue_push(struct queue* queue, const void* data)
 {
-    const size_t size = queue->rear - queue->front;
+    void* ptr;
+    int wrapped = queue->rear + 1 == queue->front;
+    const size_t size = queue_size(queue);
 
-    if (size >= queue->capacity) {
-        queue->capacity = queue->capacity * 2 + !queue->capacity;
+    if (wrapped || size + 1 >= queue->capacity) {
+        const size_t currcap = queue->capacity;
+        queue->capacity = (!queue->capacity + queue->capacity) * 2;
         queue->data = realloc(queue->data, queue->capacity * queue->bytes);
+        if (wrapped) {
+            memcpy(
+                (char*)queue->data + currcap * queue->bytes,
+                queue->data,
+                queue->rear * queue->bytes
+            );
+            queue->rear += currcap;
+        }
     }
 
-    memcpy(_queue_index(queue, queue->rear), data, queue->bytes);
+    ptr = (char*)queue->data + queue->rear * queue->bytes;
     queue->rear = (queue->rear + 1) % queue->capacity;
-}
-
-void queue_resize(struct queue* queue, const size_t size)
-{
-    const size_t qsize = queue->rear - queue->front;
-    queue->capacity = (size > qsize) ? size : qsize;
-    queue->data = realloc(queue->data, queue->capacity * queue->bytes);
-}
-
-void queue_cut(struct queue* queue)
-{
-    queue->capacity = queue->rear - queue->front;
-    queue->data = realloc(queue->data, queue->capacity * queue->bytes);
+    memcpy(ptr, data, queue->bytes);
+    return ptr;
 }
 
 void* queue_pop(struct queue* queue)
 {
-    void* ptr;
-    if (queue->rear == queue->front) {
-        return NULL;
+    void* ptr = NULL;
+    if (queue->rear != queue->front) {
+        ptr = (char*)queue->data + queue->front * queue->bytes;
+        queue->front = (queue->front + 1) % queue->capacity;
+        if (queue->front == queue->rear) {
+            queue->front = 0;
+            queue->rear = 0;
+        }
     }
-
-    ptr = _queue_index(queue, queue->front);
-    queue->front = (queue->front + 1) % queue->capacity;
-    
     return ptr;
 }
 
 void* queue_peek(const struct queue* queue)
 {
-    return queue->rear == queue->front ? NULL : _queue_index(queue, queue->front);
+    return  queue->rear == queue->front ? NULL :
+            (char*)queue->data + queue->front * queue->bytes;
+}
+
+size_t queue_size(const struct queue* queue)
+{
+    return  queue->rear >= queue->front ? queue->rear - queue->front : 
+            queue->capacity - queue->front + queue->rear;
 }
 
 void* queue_index(const struct queue* queue, const size_t index)
 {
-    return _queue_index(queue, index);
+    return (char*)queue->data + index * queue->bytes;
 }
 
 size_t queue_bytes(const struct queue* queue)
 {
     return queue->bytes;
-}
-
-size_t queue_size(const struct queue* queue)
-{
-    return queue->rear >= queue->front ? queue->rear - queue->front : queue->capacity - queue->front + queue->rear;
 }
 
 size_t queue_capacity(const struct queue* queue)
