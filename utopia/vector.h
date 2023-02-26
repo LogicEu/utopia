@@ -145,7 +145,6 @@ struct vector vector_copy(const struct vector* vector)
     ret.bytes = vector->bytes;
     ret.capacity = vector->capacity;
     ret.size = vector->size;
-    
     memcpy(ret.data, vector->data, ret.size * ret.bytes);
     return ret;
 }
@@ -161,7 +160,6 @@ struct vector vector_move(struct vector* vector)
     vector->size = 0;
     vector->capacity = 0;
     vector->data = NULL;
-
     return ret;
 }
 
@@ -170,7 +168,7 @@ struct vector vector_wrap(void* data, const size_t bytes, const size_t size)
     struct vector vector;
     vector.bytes = bytes + !bytes;
     vector.data = data;
-    vector.capacity = size + !size;
+    vector.capacity = size;
     vector.size = vector.capacity;
     return vector;
 }
