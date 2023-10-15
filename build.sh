@@ -1,8 +1,14 @@
 #!/bin/bash
 
 cc=gcc
-src=src/*.c
+src=utopia/*.h
 name=libutopia
+tmp=tmp
+bin=bin
+
+path=/usr/local
+incdir=$path/include
+libdir=$path/lib
 
 flags=(
     -std=c89
@@ -10,7 +16,9 @@ flags=(
     -Wextra
     -pedantic
     -O2
-    -I.
+    -x
+    c
+    -DUTOPIA_IMPLEMENTATION
 )
 
 if echo "$OSTYPE" | grep -q "darwin"; then
@@ -24,79 +32,94 @@ elif echo "$OSTYPE" | grep -q "linux"; then
         -fPIC
     )
     suffix=.so
-else
-    echo "This OS is not supported by this shell script yet..." && exit
 fi
 
 cmd() {
     echo "$@" && $@
 }
 
+objs() {
+    cmd mkdir -p $tmp
+    for f in ${src[*]}
+    do
+        fname=$(basename -- $f)
+        obj=${fname%.h}.o
+        cmd $cc ${flags[*]} -c $f -o $tmp/$obj
+    done
+}
+
 shared() {
-    cmd mkdir -p tmp
-    cmd $cc -c $src ${flags[*]} && cmd mv *.o tmp/ || exit
-    
-    cmd mkdir -p bin
-    cmd $cc tmp/*.o -o bin/$name$suffix ${dlib[*]}
+    [ -d $tmp ] || objs
+    cmd mkdir -p $bin
+    cmd $cc $tmp/*.o -o $bin/$name$suffix ${dlib[*]}
 }
 
 static() {
-    cmd mkdir -p tmp
-    cmd $cc ${flags[*]} -c $src && cmd mv *.o tmp/ || exit
-    
-    cmd mkdir -p bin
-    cmd ar -cr bin/$name.a tmp/*.o
+    [ -d $tmp ] || objs
+    cmd mkdir -p $bin
+    cmd ar -cr $bin/$name.a $tmp/*.o
 }
 
 cleand() {
-    [ -d $1 ] && cmd rm -r $1
+    [ -d $1 ] && cmd rm -rf $1
 }
 
 cleanf() {
-    [ -f $1 ] && cmd rm $1
+    [ -f $1 ] && cmd rm -f $1
 }
 
 clean() {
-    cleand bin
-    cleand tmp
+    cleand $bin
+    cleand $tmp
     return 0
 }
 
 install() {
-    [ "$EUID" -ne 0 ] && echo "Run with sudo to install" && exit
+    [ "$EUID" -ne 0 ] && echo "$0: run with sudo to install" && exit
     
     make all -j # or static && shared
-    cmd cp -r utopia /usr/local/include/utopia
+    cmd cp -r utopia $incdir/utopia
 
-    [ -f bin/$name.a ] && cmd mv bin/$name.a /usr/local/lib
-    [ -f bin/$name.so ] && cmd mv bin/$name.so /usr/local/lib
-    [ -f bin/$name.dylib ] && cmd mv bin/$name.dylib /usr/local/lib
+    [ -f $bin/$name.a ] && cmd mv $bin/$name.a $libdir
+    [ -f $bin/$name.so ] && cmd mv $bin/$name.so $libdir
+    [ -f $bin/$name.dylib ] && cmd mv $bin/$name.dylib $libdir
     
-    echo "Successfully installed $name"
+    echo "successfully installed $name"
     return 0
 }
 
 uninstall() {
-    [ "$EUID" -ne 0 ] && echo "Run with sudo to uninstall" && exit
+    [ "$EUID" -ne 0 ] && echo "$0: run with sudo to uninstall" && exit
 
-    cleand /usr/local/include/utopia
-    cleanf /usr/local/lib/$name.a
-    cleanf /usr/local/lib/$name.so
-    cleanf /usr/local/lib/$name.dylib
+    cleand $incdir/utopia
+    cleanf $libdir/$name.a
+    cleanf $libdir/$name.so
+    cleanf $libdir/$name.dylib
 
-    echo "Successfully uninstalled $name"
+    echo "successfully uninstalled $name"
     return 0
 }
 
+usage() {
+    echo "$0 usage:"
+    echo -e "shared\t\t: build $name as a shared library: $name$suffix"
+    echo -e "static\t\t: build $name as a static library: $name.a"
+    echo -e "all\t\t: build $name as shared and static libraries"
+    echo -e "help\t\t: print usage information and available commands"
+    echo -e "clean\t\t: delete local builds and executables"
+    echo -e "install\t\t: install $name in $path (run with sudo)"
+    echo -e "uninstall\t: uninstall $name from $path (run with sudo)"
+}
+
 case "$1" in
+    "help")
+        usage && exit;;
     "shared")
         shared;;
     "static")
         static;;
     "all")
         shared && static;;
-    "make")
-        make all -j;;
     "clean")
         clean;;
     "install")
@@ -104,7 +127,5 @@ case "$1" in
     "uninstall")
         uninstall;;
     *)
-        echo "Run with 'shared' or 'static' to build"
-        echo "Use 'install' to build and install in /usr/local"
-        echo "Use 'clean' to remove local builds"
+        usage && exit;;
 esac

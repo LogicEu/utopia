@@ -6,16 +6,14 @@ CC = gcc
 STD = -std=c89
 WFLAGS = -Wall -Wextra -pedantic
 OPT = -O2
-INC = -I.
 
-SRCDIR = src
 TMPDIR = tmp
 BINDIR = bin
 INCDIR = utopia
 
 SCRIPT = build.sh
-SRC = $(wildcard $(SRCDIR)/*.c)
-OBJS = $(patsubst $(SRCDIR)/%.c,$(TMPDIR)/%.o,$(SRC))
+SRC = $(wildcard $(INCDIR)/*.h)
+OBJS = $(patsubst $(INCDIR)/%.h,$(TMPDIR)/%.o,$(SRC))
 
 OS=$(shell uname -s)
 ifeq ($(OS),Darwin)
@@ -29,7 +27,7 @@ endif
 TARGET = $(BINDIR)/$(NAME)
 LIB = $(TARGET)$(SUFFIX)
 
-CFLAGS = $(STD) $(WFLAGS) $(OPT) $(INC)
+CFLAGS = $(STD) $(WFLAGS) $(OPT)
 
 $(TARGET).a: $(BINDIR) $(OBJS)
 	ar -cr $@ $(OBJS)
@@ -43,8 +41,8 @@ all: $(LIB) $(TARGET).a
 $(LIB): $(BINDIR) $(OBJS)
 	$(CC) $(CFLAGS) $(DLIB) -o $@ $(OBJS)
 
-$(TMPDIR)/%.o: $(SRCDIR)/%.c $(INCDIR)/%.h
-	$(CC) $(CFLAGS) -c $< -o $@
+$(TMPDIR)/%.o: $(INCDIR)/%.h
+	$(CC) $(CFLAGS) -x c -DUTOPIA_IMPLEMENTATION -c $< -o $@
 
 $(OBJS): | $(TMPDIR)
 
@@ -55,7 +53,7 @@ $(BINDIR):
 	mkdir -p $@
 
 clean: $(SCRIPT)
-	./$^ $@
+	$(RM) -r $(TMPDIR) $(BINDIR)
 
 install: $(SCRIPT)
 	./$^ $@
