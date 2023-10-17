@@ -61,6 +61,7 @@ struct vector vector_wrap(void* data, const size_t bytes, const size_t size);
 struct vector vector_copy(const struct vector* vector);
 struct vector vector_move(struct vector* vector);
 void* vector_push(struct vector* vector, const void* data);
+void* vector_push_at(struct vector* vector, const void* data, const size_t index);
 void* vector_push_block(struct vector* vector, const void* data, const size_t count);
 void* vector_push_block_at(struct vector* vector, const void* data, 
                         const size_t count, const size_t index);
@@ -185,10 +186,24 @@ void* vector_push(struct vector* vector, const void* data)
     return ptr;
 }
 
+void* vector_push_at(struct vector* vector, const void* data, const size_t index)
+{
+    char* ptr;
+    if (vector->size == vector->capacity) {
+        vector->capacity = vector->capacity * 2 + !vector->capacity;
+        vector->data = realloc(vector->data, vector->capacity * vector->bytes);
+    }
+    ptr = _vector_index(vector, index);
+    memcpy(ptr + vector->bytes, ptr, (vector->size - index) * vector->bytes);
+    memcpy(ptr, data, vector->bytes);
+    ++vector->size;
+    return ptr;
+}
+
 void* vector_push_block(struct vector* vector, const void* data, const size_t count)
 {
     char* ptr;
-    while (vector->size + count > vector->capacity) {
+    if (vector->size + count > vector->capacity) {
         vector->capacity += count + 1;
         vector->data = realloc(vector->data, vector->capacity * vector->bytes);
     }
