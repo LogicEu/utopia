@@ -139,6 +139,16 @@ struct vector vector_sized(const size_t bytes, const size_t size)
     return vector;
 }
 
+struct vector vector_wrap(void* data, const size_t bytes, const size_t size)
+{
+    struct vector vector;
+    vector.bytes = bytes + !bytes;
+    vector.data = data;
+    vector.capacity = size;
+    vector.size = size;
+    return vector;
+}
+
 struct vector vector_copy(const struct vector* vector)
 {
     struct vector ret;
@@ -152,26 +162,11 @@ struct vector vector_copy(const struct vector* vector)
 
 struct vector vector_move(struct vector* vector)
 {
-    struct vector ret;
-    ret.data = vector->data;
-    ret.bytes = vector->bytes;
-    ret.capacity = vector->capacity;
-    ret.size = vector->size;
-    
+    struct vector ret = *vector;
     vector->size = 0;
     vector->capacity = 0;
     vector->data = NULL;
     return ret;
-}
-
-struct vector vector_wrap(void* data, const size_t bytes, const size_t size)
-{
-    struct vector vector;
-    vector.bytes = bytes + !bytes;
-    vector.data = data;
-    vector.capacity = size;
-    vector.size = vector.capacity;
-    return vector;
 }
 
 void* vector_push(struct vector* vector, const void* data)
