@@ -68,7 +68,7 @@ size_t hash_bytes(const struct hash* table);
 void hash_resize(struct hash* table, const size_t new_size);
 void* hash_push(struct hash* table, const void* data);
 size_t hash_push_if(struct hash* table, const void* data);
-void hash_remove(struct hash* table, const void* data);
+int hash_remove(struct hash* table, const void* data);
 void hash_free(struct hash* table);
 
 #ifdef __cplusplus
@@ -122,12 +122,17 @@ static size_t* bucket_push(size_t* bucket, size_t index)
     return bucket;
 }
 
-static void bucket_remove(size_t* bucket, const size_t index)
+static void bucket_remove(size_t** bucketref, const size_t index)
 {
+    size_t* bucket = *bucketref;
     const size_t size = BUCKET_SIZE(bucket) + BUCKET_DATA_INDEX;
     size_t* ptr = bucket + index;
     memmove(ptr, ptr + 1, (size - index - 1) * sizeof(size_t));
     bucket[BUCKET_SIZE_INDEX] = size - 1 - BUCKET_DATA_INDEX;
+    if (bucket[BUCKET_SIZE_INDEX] == 0) {
+        free(bucket);
+        *bucketref = NULL;
+    }
 }
 
 #endif /* UTOPIA_BUCKET_IMPLEMENTED */
@@ -144,7 +149,7 @@ static void buckets_reindex(size_t** buckets, const size_t size, const size_t re
         if (buckets[i]) {
             const size_t count = BUCKET_SIZE(buckets[i]) + BUCKET_DATA_INDEX;
             for (j = BUCKET_DATA_INDEX; j < count; j++) {
-                buckets[i][j] -= (buckets[i][i] >= removed);
+                buckets[i][j] -= (buckets[i][j] >= removed);
             }
         }
     }
@@ -183,7 +188,7 @@ static size_t hash_default(const void* key)
 #ifndef UTOPIA_HASH_UINT
     int c;
     size_t hash = 5381;
-    const unsigned char* str = key;
+    const unsigned char* str = *(unsigned char**)key;
     while ((c = *str++)) {
         hash = ((hash << 5) + hash) + c;
     }
@@ -314,7 +319,7 @@ void hash_resize(struct hash* table, const size_t new_size)
     }
 }
 
-void hash_remove(struct hash* table, const void* data)
+int hash_remove(struct hash* table, const void* data)
 {
     if (table->mod) {
 
@@ -335,10 +340,13 @@ void hash_remove(struct hash* table, const void* data)
             const size_t find = bucket[search];
             char* ptr = _hash_index(table, find);
             memmove(ptr, ptr + table->bytes, (--table->size - find) * table->bytes);
-            bucket_remove(bucket, search);
+            bucket_remove(&bucket, search);
             buckets_reindex(table->indices, table->mod, find);
+            return 1;
         }
     }
+
+    return 0;
 }
 
 void* hash_push(struct hash* table, const void* data)

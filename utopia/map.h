@@ -73,7 +73,7 @@ size_t map_value_bytes(const struct map* map);
 void map_resize(struct map* map, const size_t size);
 void* map_push(struct map* map, const void* key, const void* value);
 size_t map_push_if(struct map* map, const void* key, const void* value);
-void map_remove(struct map* map, const void* key);
+int map_remove(struct map* map, const void* key);
 void map_free(struct map* map);
 
 #ifdef __cplusplus
@@ -127,12 +127,17 @@ static size_t* bucket_push(size_t* bucket, size_t index)
     return bucket;
 }
 
-static void bucket_remove(size_t* bucket, const size_t index)
+static void bucket_remove(size_t** bucketref, const size_t index)
 {
+    size_t* bucket = *bucketref;
     const size_t size = BUCKET_SIZE(bucket) + BUCKET_DATA_INDEX;
     size_t* ptr = bucket + index;
     memmove(ptr, ptr + 1, (size - index - 1) * sizeof(size_t));
     bucket[BUCKET_SIZE_INDEX] = size - 1 - BUCKET_DATA_INDEX;
+    if (bucket[BUCKET_SIZE_INDEX] == 0) {
+        free(bucket);
+        *bucketref = NULL;
+    }
 }
 
 #endif /* UTOPIA_BUCKET_IMPLEMENTED */
@@ -149,7 +154,7 @@ static void buckets_reindex(size_t** buckets, const size_t size, const size_t re
         if (buckets[i]) {
             const size_t count = BUCKET_SIZE(buckets[i]) + BUCKET_DATA_INDEX;
             for (j = BUCKET_DATA_INDEX; j < count; j++) {
-                buckets[i][j] -= (buckets[i][i] >= removed);
+                buckets[i][j] -= (buckets[i][j] >= removed);
             }
         }
     }
@@ -188,7 +193,7 @@ static size_t hash_default(const void* key)
 #ifndef UTOPIA_HASH_UINT
     int c;
     size_t hash = 5381;
-    const unsigned char* str = key;
+    const unsigned char* str = *(unsigned char**)key;
     while ((c = *str++)) {
         hash = ((hash << 5) + hash) + c;
     }
@@ -335,7 +340,7 @@ void map_resize(struct map* map, const size_t new_size)
     }
 }
 
-void map_remove(struct map* map, const void* key)
+int map_remove(struct map* map, const void* key)
 {
     if (map->mod) {
 
@@ -360,11 +365,14 @@ void map_remove(struct map* map, const void* key)
             memmove(key, key + map->key_bytes, (map->size - find - 1) * map->key_bytes);
             memmove(val, val + map->value_bytes, (map->size - find - 1) * map->value_bytes);
             
-            bucket_remove(bucket, search);
+            bucket_remove(&bucket, search);
             buckets_reindex(map->indices, map->mod, find);
             --map->size;
+            return 1;
         }
     }
+
+    return 0;
 }
 
 void* map_push(struct map* map, const void* key, const void* value)
