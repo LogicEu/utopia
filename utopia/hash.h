@@ -23,8 +23,8 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 
-#ifndef UTOPIA_HASH_H
-#define UTOPIA_HASH_H
+#ifndef UTOPIA_SET_H
+#define UTOPIA_SET_H
 
 /*=======================================================
 **************  UTOPIA UTILITY LIBRARY   ****************
@@ -32,7 +32,7 @@ Simple and easy generic containers & data structures in C
 ================================== @Eugenio Arteaga A. */
 
 /*****************
-Generic Hash Table
+ Generic Hash Set
 *****************/
 
 #ifdef __cplusplus
@@ -45,7 +45,7 @@ extern "C" {
 
 #include USTDDEF_H
 
-struct hash {
+struct set {
     size_t** indices;
     void* data;
     size_t bytes;
@@ -54,32 +54,32 @@ struct hash {
     size_t (*func)(const void*);
 };
 
-#define _hash_index(table, i) ((char*)(table)->data + (i) * (table)->bytes)
+#define _set_index(set, i) ((char*)(set)->data + (i) * (set)->bytes)
 
-struct hash hash_create(const size_t bytes);
-struct hash hash_reserve(const size_t bytes, const size_t reserve);
-struct hash hash_copy(const struct hash* table);
-size_t hash_search(const struct hash* table, const void* data);
-void hash_overload(struct hash* hash, size_t (*func)(const void*));
-void* hash_index(const struct hash* table, const size_t index);
-size_t hash_size(const struct hash* table);
-size_t hash_capacity(const struct hash* table);
-size_t hash_bytes(const struct hash* table);
-void hash_resize(struct hash* table, const size_t new_size);
-void* hash_push(struct hash* table, const void* data);
-size_t hash_push_if(struct hash* table, const void* data);
-int hash_remove(struct hash* table, const void* data);
-void hash_free(struct hash* table);
+struct set set_create(const size_t bytes);
+struct set set_reserve(const size_t bytes, const size_t reserve);
+struct set set_copy(const struct set* set);
+size_t set_search(const struct set* set, const void* data);
+void set_overload(struct set* hash, size_t (*func)(const void*));
+void* set_index(const struct set* set, const size_t index);
+size_t set_size(const struct set* set);
+size_t set_capacity(const struct set* set);
+size_t set_bytes(const struct set* set);
+void set_resize(struct set* set, const size_t new_size);
+void* set_push(struct set* set, const void* data);
+size_t set_push_if(struct set* set, const void* data);
+int set_remove(struct set* set, const void* data);
+void set_free(struct set* set);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* UTOPIA_HASH_H */
+#endif /* UTOPIA_SET_H */
 
 #ifdef UTOPIA_IMPLEMENTATION
 
-#ifndef UTOPIA_HASH_IMPLEMENTED
-#define UTOPIA_HASH_IMPLEMENTED
+#ifndef UTOPIA_SET_IMPLEMENTED
+#define UTOPIA_SET_IMPLEMENTED
 
 #ifndef USTDLIB_H 
 #define USTDLIB_H <stdlib.h>
@@ -183,7 +183,7 @@ static void* memdup(const void* src, size_t size)
     return dup;
 }
 
-static size_t hash_default(const void* key)
+static size_t set_default(const void* key)
 {
 #ifndef UTOPIA_HASH_UINT
     int c;
@@ -204,90 +204,90 @@ static size_t hash_default(const void* key)
 #endif /* UTOPIA_HASHABLE_IMPLEMENTED */
 
 /*****************
-Generic Hash Table
+ Generic Hash Set
 *****************/
 
-struct hash hash_create(const size_t bytes)
+struct set set_create(const size_t bytes)
 {
-    struct hash table;
-    table.indices = NULL;
-    table.data = NULL;
-    table.bytes = bytes + !bytes;
-    table.size = 0;
-    table.mod = 0;
-    table.func = &hash_default;
-    return table;
+    struct set set;
+    set.indices = NULL;
+    set.data = NULL;
+    set.bytes = bytes + !bytes;
+    set.size = 0;
+    set.mod = 0;
+    set.func = &set_default;
+    return set;
 }
 
-struct hash hash_reserve(const size_t bytes, const size_t reserve)
+struct set set_reserve(const size_t bytes, const size_t reserve)
 {
-    struct hash table;
-    table.bytes = bytes + !bytes;
-    table.indices = reserve ? calloc(reserve, sizeof(size_t*)) : NULL;
-    table.data = reserve ? malloc(reserve * table.bytes) : NULL;
-    table.mod = reserve;
-    table.size = 0;
-    table.func = &hash_default;
-    return table;
+    struct set set;
+    set.bytes = bytes + !bytes;
+    set.indices = reserve ? calloc(reserve, sizeof(size_t*)) : NULL;
+    set.data = reserve ? malloc(reserve * set.bytes) : NULL;
+    set.mod = reserve;
+    set.size = 0;
+    set.func = &set_default;
+    return set;
 }
 
-struct hash hash_copy(const struct hash* table)
+struct set set_copy(const struct set* set)
 {
-    struct hash t = *table;
-    if (table->mod) {
+    struct set t = *set;
+    if (set->mod) {
         size_t i, size;
 
-        t.data = memdup(table->data, table->mod * table->bytes);
-        t.indices = memdup(table->indices, table->mod * sizeof(size_t*));
+        t.data = memdup(set->data, set->mod * set->bytes);
+        t.indices = memdup(set->indices, set->mod * sizeof(size_t*));
         
-        for (i = 0; i < table->mod; ++i) {
-            size = BUCKET_SIZE(table->indices[i]);
+        for (i = 0; i < set->mod; ++i) {
+            size = BUCKET_SIZE(set->indices[i]);
             if (size) {
                 size += BUCKET_DATA_INDEX;
-                t.indices[i] = memdup(table->indices[i], size * sizeof(size_t));
+                t.indices[i] = memdup(set->indices[i], size * sizeof(size_t));
             }
         }
     }
     return t;
 }
 
-size_t hash_capacity(const struct hash* table)
+size_t set_capacity(const struct set* set)
 {
-    return table->mod;
+    return set->mod;
 }
 
-void hash_overload(struct hash* hash, size_t (*func)(const void*))
+void set_overload(struct set* hash, size_t (*func)(const void*))
 {
     hash->func = func;
 }
 
-void* hash_index(const struct hash* table, const size_t index)
+void* set_index(const struct set* set, const size_t index)
 {
-    return _hash_index(table, index);
+    return _set_index(set, index);
 }
 
-size_t hash_size(const struct hash* table)
+size_t set_size(const struct set* set)
 {
-    return table->size;
+    return set->size;
 }
 
-size_t hash_bytes(const struct hash* table)
+size_t set_bytes(const struct set* set)
 {
-    return table->bytes;
+    return set->bytes;
 }
 
-size_t hash_search(const struct hash* table, const void* data)
+size_t set_search(const struct set* set, const void* data)
 {
-    if (table->mod) {
+    if (set->mod) {
     
         size_t i;
-        const size_t hash = table->func(data);
-        const size_t* bucket = table->indices[hash % table->mod];
+        const size_t hash = set->func(data);
+        const size_t* bucket = set->indices[hash % set->mod];
     
         const size_t size = BUCKET_SIZE(bucket) + BUCKET_DATA_INDEX;
         for (i = BUCKET_DATA_INDEX; i < size; ++i) {
-            void* k = _hash_index(table, bucket[i]);
-            if (hash == table->func(k)) {
+            void* k = _set_index(set, bucket[i]);
+            if (hash == set->func(k)) {
                 return bucket[i] + 1;
             }
         }
@@ -296,41 +296,41 @@ size_t hash_search(const struct hash* table, const void* data)
     return 0;
 }
 
-void hash_resize(struct hash* table, const size_t new_size)
+void set_resize(struct set* set, const size_t new_size)
 {
     size_t i;
     const char* key;
-    const size_t size = table->size;
-    const size_t bytes = table->bytes;
+    const size_t size = set->size;
+    const size_t bytes = set->bytes;
 
-    if (table->mod) {
-        buckets_free(table->indices, table->mod);
+    if (set->mod) {
+        buckets_free(set->indices, set->mod);
     }
 
-    table->mod = new_size + !new_size * UTOPIA_HASH_SIZE;
-    table->data = realloc(table->data, table->mod * table->bytes);
-    table->indices = realloc(table->indices, table->mod * sizeof(size_t*));
-    memset(table->indices, 0, table->mod * sizeof(size_t*));
+    set->mod = new_size + !new_size * UTOPIA_HASH_SIZE;
+    set->data = realloc(set->data, set->mod * set->bytes);
+    set->indices = realloc(set->indices, set->mod * sizeof(size_t*));
+    memset(set->indices, 0, set->mod * sizeof(size_t*));
     
-    key = table->data;
+    key = set->data;
     for (i = 0; i < size; ++i, key += bytes) {
-        const size_t hash_mod = table->func(key) % table->mod;
-        table->indices[hash_mod] = bucket_push(table->indices[hash_mod], i);
+        const size_t set_mod = set->func(key) % set->mod;
+        set->indices[set_mod] = bucket_push(set->indices[set_mod], i);
     }
 }
 
-int hash_remove(struct hash* table, const void* data)
+int set_remove(struct set* set, const void* data)
 {
-    if (table->mod) {
+    if (set->mod) {
 
         size_t i, search = 0;
-        const size_t hash = table->func(data);
-        size_t* bucket = table->indices[hash % table->mod];
+        const size_t hash = set->func(data);
+        size_t* bucket = set->indices[hash % set->mod];
 
         const size_t size = BUCKET_SIZE(bucket) + BUCKET_DATA_INDEX;
         for (i = BUCKET_DATA_INDEX; i < size; ++i) {
-            void* k = _hash_index(table, bucket[i]);
-            if (hash == table->func(k)) {
+            void* k = _set_index(set, bucket[i]);
+            if (hash == set->func(k)) {
                 search = i;
                 break;
             }
@@ -338,10 +338,10 @@ int hash_remove(struct hash* table, const void* data)
 
         if (search) {
             const size_t find = bucket[search];
-            char* ptr = _hash_index(table, find);
-            memmove(ptr, ptr + table->bytes, (--table->size - find) * table->bytes);
+            char* ptr = _set_index(set, find);
+            memmove(ptr, ptr + set->bytes, (--set->size - find) * set->bytes);
             bucket_remove(&bucket, search);
-            buckets_reindex(table->indices, table->mod, find);
+            buckets_reindex(set->indices, set->mod, find);
             return 1;
         }
     }
@@ -349,45 +349,45 @@ int hash_remove(struct hash* table, const void* data)
     return 0;
 }
 
-void* hash_push(struct hash* table, const void* data)
+void* set_push(struct set* set, const void* data)
 {
     void* ptr;
     size_t hashmod;
-    if (table->size == table->mod) {
-        hash_resize(table, table->mod * 2);
+    if (set->size == set->mod) {
+        set_resize(set, set->mod * 2);
     }
 
-    hashmod = table->func(data) % table->mod;
-    ptr = _hash_index(table, table->size);
-    table->indices[hashmod] = bucket_push(table->indices[hashmod], table->size++);
-    memcpy(ptr, data, table->bytes);
+    hashmod = set->func(data) % set->mod;
+    ptr = _set_index(set, set->size);
+    set->indices[hashmod] = bucket_push(set->indices[hashmod], set->size++);
+    memcpy(ptr, data, set->bytes);
     return ptr;
 }
 
-size_t hash_push_if(struct hash* table, const void* data)
+size_t set_push_if(struct set* set, const void* data)
 {
-    const size_t index = hash_search(table, data);
+    const size_t index = set_search(set, data);
     if (index) {
         return index;
     }
 
-    hash_push(table, data);
+    set_push(set, data);
     return 0;
 }
 
-void hash_free(struct hash* table)
+void set_free(struct set* set)
 {
-    if (table->indices) {
-        buckets_free(table->indices, table->mod);
-        free(table->indices);
-        free(table->data);
+    if (set->indices) {
+        buckets_free(set->indices, set->mod);
+        free(set->indices);
+        free(set->data);
 
-        table->indices = NULL;
-        table->data = NULL;
-        table->size = 0;
-        table->mod = 0;
+        set->indices = NULL;
+        set->data = NULL;
+        set->size = 0;
+        set->mod = 0;
     }
 }
 
-#endif /* UTOPIA_HASH_IMPLEMENTED */
+#endif /* UTOPIA_SET_IMPLEMENTED */
 #endif /* UTOPIA_IMPLEMENTATION */
