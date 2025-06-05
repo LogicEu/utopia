@@ -6,7 +6,7 @@ structures in C. Some of the containers are:
 * Vector
 * Queue
 * String
-* Hash Table
+* Set
 * Map
 * Tree
 * Doubly Linked List
